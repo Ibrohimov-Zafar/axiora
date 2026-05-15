@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import 'leaflet/dist/leaflet.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-heading: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --background: 0 0% 1.2%;
+    --foreground: 210 40% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 270 91% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 270 95% 85%;
+    --accent-foreground: 0 0% 1%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 270 91% 65%;
+    --chart-1: 270 91% 65%;
+    --chart-2: 270 95% 85%;
+    --chart-3: 215 20% 65%;
+    --chart-4: 0 0% 40%;
+    --chart-5: 270 60% 50%;
+    --radius: 0.75rem;
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 270 91% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 0 0% 14%;
+    --sidebar-ring: 270 91% 65%;
+  }
+
+  .dark {
+    --background: 0 0% 1.2%;
+    --foreground: 210 40% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 270 91% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 270 95% 85%;
+    --accent-foreground: 0 0% 1%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 270 91% 65%;
+    --chart-1: 270 91% 65%;
+    --chart-2: 270 95% 85%;
+    --chart-3: 215 20% 65%;
+    --chart-4: 0 0% 40%;
+    --chart-5: 270 60% 50%;
+    --sidebar-background: 0 0% 3%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 270 91% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 0 0% 14%;
+    --sidebar-ring: 270 91% 65%;
+  }
+
+  /* Light mode overrides */
+  :root:not(.dark) {
+    --background: 0 0% 98%;
+    --foreground: 224 71% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+    --primary: 270 91% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 270 10% 94%;
+    --secondary-foreground: 224 71% 4%;
+    --muted: 270 10% 94%;
+    --muted-foreground: 215 16% 46%;
+    --accent: 270 80% 80%;
+    --accent-foreground: 224 71% 4%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 270 91% 58%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 224 71% 4%;
+    --sidebar-primary: 270 91% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 270 10% 94%;
+    --sidebar-accent-foreground: 224 71% 4%;
+    --sidebar-border: 220 13% 88%;
+    --sidebar-ring: 270 91% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.hero-surface {
+  background:
+    linear-gradient(115deg, hsl(198 90% 56% / 0.12), transparent 34%),
+    linear-gradient(245deg, hsl(var(--primary) / 0.16), transparent 42%),
+    linear-gradient(180deg, hsl(270 100% 98%) 0%, hsl(var(--background)) 58%, hsl(var(--background)) 100%);
+}
+
+.dark .hero-surface {
+  background:
+    radial-gradient(ellipse at 50% -12%, hsl(var(--primary) / 0.24), transparent 46%),
+    linear-gradient(135deg, hsl(198 90% 56% / 0.10), transparent 34%),
+    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background) / 0.88) 54%, hsl(var(--background)) 100%);
+}
+
+.hero-light-ribbons {
+  background:
+    linear-gradient(112deg, transparent 0 20%, hsl(var(--primary) / 0.22) 30%, transparent 43%),
+    linear-gradient(68deg, transparent 0 42%, hsl(198 90% 52% / 0.15) 52%, transparent 64%),
+    conic-gradient(from 228deg at 50% 18%, transparent 0deg, hsl(var(--primary) / 0.20) 42deg, hsl(198 90% 56% / 0.12) 82deg, transparent 126deg);
+  filter: blur(22px);
+  mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
+  opacity: 0.95;
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(hsl(var(--primary) / 0.105) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--primary) / 0.09) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to bottom, transparent, black 12%, black 62%, transparent);
+  opacity: 0.8;
+}
+
+.dark .hero-grid {
+  background-image:
+    linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.28;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Leaflet dark mode */
+.dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9);
+}
+.dark .leaflet-container {
+  background: hsl(var(--background));
+}
