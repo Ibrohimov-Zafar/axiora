@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useI18n } from '@/lib/i18n';
-import { Menu, X, Sun, Moon } from 'lucide-react';
+import { Menu, X, Sun, Moon, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
@@ -122,9 +122,24 @@ export default function Navbar() {
                 {t.nav.contact}
               </Button>
             </a>
+
+            <a
+              href="/login"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-black/[0.03] text-foreground backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-primary/10 dark:border-white/10 dark:bg-white/[0.04]"
+              title="Admin panel"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+            </a>
           </div>
 
           <div className="lg:hidden flex items-center gap-2">
+            <a
+              href="/login"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-black/[0.03] text-foreground dark:border-white/10 dark:bg-white/[0.04]"
+              title="Admin panel"
+            >
+              <LogIn className="h-4 w-4" />
+            </a>
             <button
               onClick={toggleTheme}
               className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-black/[0.03] text-foreground dark:border-white/10 dark:bg-white/[0.04]"
