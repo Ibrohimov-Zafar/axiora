@@ -99,7 +99,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background flex">
       {/* Desktop sidebar */}
       <aside
-        className={`hidden lg:flex flex-col border-r border-border/40 bg-card/60 backdrop-blur-sm shrink-0 transition-all duration-300 ${
+        className={`hidden lg:flex flex-col border-r border-border/40 bg-card shrink-0 transition-all duration-300 ${
           collapsed ? 'w-16' : 'w-60'
         }`}
       >
@@ -115,7 +115,7 @@ export default function Dashboard() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+              className="lg:hidden fixed inset-0 z-40 bg-black/60"
             />
             <motion.aside
               initial={{ x: -240 }}
@@ -133,7 +133,7 @@ export default function Dashboard() {
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="sticky top-0 z-30 h-16 border-b border-border/40 bg-background/90 backdrop-blur-xl flex items-center px-4 sm:px-6 gap-4 shrink-0">
+        <header className="relative z-30 h-16 border-b border-border/40 bg-background flex items-center px-4 sm:px-6 gap-4 shrink-0 lg:sticky lg:top-0">
           {/* Mobile menu */}
           <button
             onClick={() => setMobileOpen(true)}
@@ -179,7 +179,7 @@ export default function Dashboard() {
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-auto p-4 sm:p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6">
           <Outlet />
         </main>
       </div>

@@ -87,7 +87,7 @@ export default function TeamPage() {
 
       {/* Others */}
       <div>
-        <h3 className="font-heading font-semibold text-sm text-muted-foreground uppercase tracking-wider mb-4">Qolgan a'zolar</h3>
+        {/* <h3 className="font-heading font-semibold text-sm text-muted-foreground uppercase tracking-wider mb-4">Qolgan a'zolar</h3> */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {others.map((m, i) => {
             const idx = members.indexOf(m);
@@ -99,7 +99,7 @@ export default function TeamPage() {
                 transition={{ delay: 0.3 + i * 0.07 }}
                 className="rounded-2xl border border-border/60 bg-card/90 shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300 overflow-hidden"
               >
-                <div className="h-56 overflow-hidden bg-secondary/30 relative">
+                <div className="h-100 overflow-hidden bg-secondary/30 relative">
                   <img src={PHOTOS[idx]} alt={m.name} className="w-full h-full object-cover object-top" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 </div>
