@@ -92,13 +92,13 @@ export default function Contact() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-3"
           >
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border border-border/60 bg-card/90 shadow-md p-6 sm:p-8">
               <div>
                 <label className="text-xs text-muted-foreground/60 font-heading tracking-wider block mb-2">{t.contact.name}</label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="bg-secondary/30 border-border/30 focus:border-primary/50 rounded-xl h-12 font-body text-foreground placeholder:text-muted-foreground/40"
+                  className="bg-background border-border/60 focus:border-primary shadow-sm rounded-xl h-12 font-body text-foreground placeholder:text-muted-foreground/40"
                   required
                 />
               </div>
@@ -107,7 +107,7 @@ export default function Contact() {
                 <Input
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="bg-secondary/30 border-border/30 focus:border-primary/50 rounded-xl h-12 font-body text-foreground placeholder:text-muted-foreground/40"
+                  className="bg-background border-border/60 focus:border-primary shadow-sm rounded-xl h-12 font-body text-foreground placeholder:text-muted-foreground/40"
                   required
                 />
               </div>
@@ -116,7 +116,7 @@ export default function Contact() {
                 <Input
                   value={form.company}
                   onChange={(e) => setForm({ ...form, company: e.target.value })}
-                  className="bg-secondary/30 border-border/30 focus:border-primary/50 rounded-xl h-12 font-body text-foreground placeholder:text-muted-foreground/40"
+                  className="bg-background border-border/60 focus:border-primary shadow-sm rounded-xl h-12 font-body text-foreground placeholder:text-muted-foreground/40"
                 />
               </div>
               <div>
@@ -125,7 +125,7 @@ export default function Contact() {
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
                   rows={4}
-                  className="bg-secondary/30 border-border/30 focus:border-primary/50 rounded-xl font-body text-foreground placeholder:text-muted-foreground/40 resize-none"
+                  className="bg-background border-border/60 focus:border-primary shadow-sm rounded-xl font-body text-foreground placeholder:text-muted-foreground/40 resize-none"
                   required
                 />
               </div>

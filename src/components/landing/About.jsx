@@ -48,7 +48,7 @@ export default function About() {
                   className="group relative"
                 >
                   <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-primary/20 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative p-6 rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-all duration-500 h-full">
+                  <div className="relative p-6 rounded-2xl border border-border/60 bg-card/90 shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-500 h-full">
                     <div className="flex items-start justify-between mb-4">
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                         <Icon className="w-5 h-5 text-primary" />

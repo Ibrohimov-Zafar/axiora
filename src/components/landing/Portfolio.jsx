@@ -31,7 +31,7 @@ export default function Portfolio() {
               className="group relative"
             >
               <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-primary/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative p-6 rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm hover:border-primary/30 transition-all duration-500 h-full flex flex-col">
+              <div className="relative p-6 rounded-2xl border border-border/60 bg-card/90 shadow-sm hover:shadow-md hover:border-primary/50 transition-all duration-500 h-full flex flex-col">
                 {/* Category badge */}
                 <div className="flex items-center justify-between mb-5">
                   <span className="text-[10px] tracking-[0.15em] text-primary font-heading bg-primary/10 px-3 py-1 rounded-full">

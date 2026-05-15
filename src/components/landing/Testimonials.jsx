@@ -31,7 +31,7 @@ export default function Testimonials() {
               className="group relative"
             >
               <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-primary/20 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative p-6 sm:p-8 rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm h-full">
+              <div className="relative p-6 sm:p-8 rounded-2xl border border-border/60 bg-card/90 shadow-sm h-full">
                 <Quote className="w-8 h-8 text-primary/20 mb-4" />
                 <p className="text-muted-foreground font-body leading-relaxed text-base mb-6 italic">
                   "{review.text}"
