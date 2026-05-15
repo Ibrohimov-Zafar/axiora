@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FolderOpen, Users, MessageSquare, TrendingUp, ArrowUpRight } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip
@@ -152,9 +153,9 @@ export default function Overview() {
         <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-4 sm:p-6 overflow-hidden">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-heading font-semibold text-foreground">So&apos;nggi loyihalar</h3>
-            <a href="/dashboard/projects" className="text-xs text-primary hover:underline font-body flex items-center gap-1">
+            <Link to="/dashboard/projects" className="text-xs text-primary hover:underline font-body flex items-center gap-1">
               Barchasi <ArrowUpRight className="w-3 h-3" />
-            </a>
+            </Link>
           </div>
           <div className="space-y-3">
             {recentProjects.map((p, i) => (
