@@ -9,6 +9,16 @@
     <meta property="og:description" content="Zamonaviy startup studio. G'oyalarni jonli biznes mahsulotlarga aylantirish." />
     <link rel="manifest" href="/manifest.json" />
     <title>Axiora — Innovatsiyalar orqali kelajakni quramiz</title>
+    <script>
+      (function () {
+        var theme = localStorage.getItem('axiora_theme');
+        if (theme === 'light') {
+          document.documentElement.classList.remove('dark');
+        } else {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -20,8 +20,8 @@ export default function FlowFieldBackground({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let width = container.clientWidth;
-    let height = container.clientHeight;
+    let width = 0;
+    let height = 0;
     let particles = [];
     let animationFrameId;
     let mouse = { x: -1000, y: -1000 };
@@ -84,9 +84,17 @@ export default function FlowFieldBackground({
     }
 
     const init = () => {
+      const nextWidth = container.clientWidth;
+      const nextHeight = container.clientHeight;
+      if (nextWidth < 2 || nextHeight < 2) return false;
+
+      width = nextWidth;
+      height = nextHeight;
+
       const dpr = window.devicePixelRatio || 1;
       canvas.width = width * dpr;
       canvas.height = height * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
@@ -94,9 +102,14 @@ export default function FlowFieldBackground({
       for (let i = 0; i < particleCount; i++) {
         particles.push(new Particle());
       }
+      return true;
     };
 
     const animate = () => {
+      if (width < 2 || height < 2) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
       ctx.fillStyle = `rgba(${trailColor}, ${trailOpacity})`;
       ctx.fillRect(0, 0, width, height);
       particles.forEach((p) => { p.update(); p.draw(ctx); });
@@ -104,8 +117,6 @@ export default function FlowFieldBackground({
     };
 
     const handleResize = () => {
-      width = container.clientWidth;
-      height = container.clientHeight;
       init();
     };
 
@@ -123,11 +134,14 @@ export default function FlowFieldBackground({
     init();
     animate();
 
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(container);
     window.addEventListener("resize", handleResize);
     container.addEventListener("mousemove", handleMouseMove);
     container.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
       container.removeEventListener("mousemove", handleMouseMove);
       container.removeEventListener("mouseleave", handleMouseLeave);
@@ -136,8 +150,8 @@ export default function FlowFieldBackground({
   }, [color, trailColor, trailOpacity, particleCount, speed]);
 
   return (
-    <div ref={containerRef} className={cn("absolute inset-0 overflow-hidden", className)}>
-      <canvas ref={canvasRef} className="w-full h-full" />
+    <div ref={containerRef} className={cn("absolute inset-0 min-h-full overflow-hidden", className)}>
+      <canvas ref={canvasRef} className="block h-full w-full" />
     </div>
   );
 }

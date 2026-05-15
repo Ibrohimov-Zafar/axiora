@@ -10,25 +10,24 @@ export default function Hero() {
   const [videoOpen, setVideoOpen] = useState(false);
 
   return (
-    <section id="hero" className="hero-surface relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background pt-20">
-      <FlowFieldBackground
-        color="#8b35ff"
-        trailColor="250, 250, 250"
-        trailOpacity={0.045}
-        particleCount={820}
-        speed={0.72}
-        className="opacity-65 transition-opacity duration-500 dark:opacity-0"
-      />
-      <FlowFieldBackground
-        color="#a855f7"
-        trailColor="0, 0, 0"
-        trailOpacity={0.08}
-        particleCount={640}
-        speed={0.8}
-        className="opacity-0 transition-opacity duration-500 dark:opacity-75"
-      />
-
-      <div className="absolute inset-0 pointer-events-none">
+    <section id="hero" className="hero-surface relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-background pt-20">
+      <div aria-hidden className="pointer-events-none absolute inset-0 min-h-[100dvh]">
+        <FlowFieldBackground
+          color="#8b35ff"
+          trailColor="250, 250, 250"
+          trailOpacity={0.045}
+          particleCount={820}
+          speed={0.72}
+          className="opacity-65 dark:opacity-0"
+        />
+        <FlowFieldBackground
+          color="#a855f7"
+          trailColor="0, 0, 0"
+          trailOpacity={0.08}
+          particleCount={640}
+          speed={0.8}
+          className="opacity-0 dark:opacity-75"
+        />
         <div className="hero-light-ribbons absolute inset-0 dark:hidden" />
         <div className="hero-grid absolute inset-0" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/35 to-background/90 dark:from-background/10 dark:via-background/30 dark:to-background" />

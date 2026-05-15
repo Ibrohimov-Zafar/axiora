@@ -18,10 +18,16 @@ export default function Navbar() {
   const { lang, setLang, t } = useI18n();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(() => {
+    const saved = localStorage.getItem('axiora_theme');
+    if (saved === 'light') return false;
+    if (saved === 'dark') return true;
+    return true;
+  });
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
+    localStorage.setItem('axiora_theme', dark ? 'dark' : 'light');
   }, [dark]);
 
   useEffect(() => {
