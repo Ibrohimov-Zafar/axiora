@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  LayoutDashboard, FolderOpen, Users, MessageSquare,
-  Settings, LogOut, Menu, X, Sun, Moon, Bell, ChevronLeft,
+  LayoutDashboard, FolderOpen, Users, MessageSquare, Globe2,
+  Settings, LogOut, Menu, Sun, Moon, Bell, ChevronLeft,
 } from 'lucide-react';
 import { adminLogout, isAdminLoggedIn } from '@/lib/adminAuth';
 
@@ -12,6 +12,7 @@ const NAV = [
   { to: '/dashboard/projects', label: 'Loyihalar', icon: FolderOpen },
   { to: '/dashboard/team', label: 'Jamoa', icon: Users },
   { to: '/dashboard/messages', label: 'Xabarlar', icon: MessageSquare, badge: 3 },
+  { to: '/dashboard/visitors', label: 'Tashriflar', icon: Globe2 },
   { to: '/dashboard/settings', label: 'Sozlamalar', icon: Settings },
 ];
 
@@ -20,7 +21,11 @@ export default function Dashboard() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
+  const [dark, setDark] = useState(() => {
+    const saved = localStorage.getItem('axiora_theme');
+    if (saved === 'light') return false;
+    return true;
+  });
 
   useEffect(() => {
     if (!isAdminLoggedIn()) navigate('/login', { replace: true });
@@ -31,6 +36,14 @@ export default function Dashboard() {
     localStorage.setItem('axiora_theme', dark ? 'dark' : 'light');
   }, [dark]);
 
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   const logout = () => { adminLogout(); navigate('/login', { replace: true }); };
 
   const isActive = (item) =>
@@ -39,19 +52,34 @@ export default function Dashboard() {
   const currentPage = NAV.find((n) => isActive(n))?.label ?? 'Dashboard';
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       {/* Logo */}
-      <div className={`flex items-center gap-3 px-4 h-16 border-b border-border/40 shrink-0 ${collapsed ? 'justify-center' : ''}`}>
-        {!collapsed && <img src="/logo.png" alt="Axiora" className="h-7 w-auto" />}
-        {collapsed && (
-          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
-            <span className="font-heading font-bold text-primary text-sm">A</span>
-          </div>
-        )}
+      <div
+        className={`flex items-center h-16 border-b border-border/40 shrink-0 overflow-hidden transition-all duration-300 ${
+          collapsed ? 'justify-center px-2' : 'gap-2.5 px-4'
+        }`}
+      >
+        <Link
+          to="/dashboard"
+          onClick={() => setMobileOpen(false)}
+          className={`flex items-center min-w-0 ${collapsed ? 'justify-center' : 'gap-2.5'}`}
+          title="Axiora"
+        >
+          <img
+            src="/logo.png"
+            alt="Axiora"
+            className={`object-contain shrink-0 ${collapsed ? 'h-8 w-8' : 'h-8 w-auto max-w-[2.25rem]'}`}
+          />
+          {!collapsed && (
+            <span className="font-heading font-bold text-lg tracking-tight text-primary truncate">
+              Axiora
+            </span>
+          )}
+        </Link>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 min-h-0 px-3 py-4 space-y-1 overflow-y-auto overscroll-contain">
         {NAV.map((item) => {
           const active = isActive(item);
           return (
@@ -96,10 +124,10 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Desktop sidebar */}
+    <div className="flex h-dvh max-h-dvh overflow-hidden bg-background">
+      {/* Desktop sidebar — fixed height, nav scrolls inside if needed */}
       <aside
-        className={`hidden lg:flex flex-col border-r border-border/40 bg-card shrink-0 transition-all duration-300 ${
+        className={`hidden lg:flex flex-col h-full border-r border-border/40 bg-card shrink-0 transition-all duration-300 ${
           collapsed ? 'w-16' : 'w-60'
         }`}
       >
@@ -130,10 +158,10 @@ export default function Dashboard() {
         )}
       </AnimatePresence>
 
-      {/* Main area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main area — only this column scrolls */}
+      <div className="flex flex-1 flex-col min-w-0 min-h-0 overflow-hidden">
         {/* Header */}
-        <header className="relative z-30 h-16 border-b border-border/40 bg-background flex items-center px-4 sm:px-6 gap-4 shrink-0 lg:sticky lg:top-0">
+        <header className="relative z-30 h-16 shrink-0 border-b border-border/40 bg-background flex items-center px-4 sm:px-6 gap-4">
           {/* Mobile menu */}
           <button
             onClick={() => setMobileOpen(true)}
@@ -179,7 +207,7 @@ export default function Dashboard() {
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6">
+        <main className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto p-4 sm:p-6">
           <Outlet />
         </main>
       </div>

@@ -12,6 +12,8 @@ import Projects from '@/pages/dashboard/Projects';
 import TeamPage from '@/pages/dashboard/TeamPage';
 import Messages from '@/pages/dashboard/Messages';
 import DashSettings from '@/pages/dashboard/DashSettings';
+import VisitorsPage from '@/pages/dashboard/VisitorsPage';
+import VisitTracker from '@/components/VisitTracker';
 
 function App() {
   return (
@@ -19,13 +21,14 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<><VisitTracker /><Home /></>} />
+            <Route path="/login" element={<><VisitTracker /><Login /></>} />
             <Route path="/dashboard" element={<Dashboard />}>
               <Route index element={<Overview />} />
               <Route path="projects" element={<Projects />} />
               <Route path="team" element={<TeamPage />} />
               <Route path="messages" element={<Messages />} />
+              <Route path="visitors" element={<VisitorsPage />} />
               <Route path="settings" element={<DashSettings />} />
             </Route>
             <Route path="*" element={<PageNotFound />} />
