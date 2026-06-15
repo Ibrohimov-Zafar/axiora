@@ -1,33 +1,59 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useI18n } from '@/lib/i18n';
-import { MEMBER_VIDEOS } from '@/lib/teamMedia';
+import {
+  MEMBER_PHOTOS,
+  MEMBER_VIDEOS,
+  getCarouselVideoUrl,
+  getFullVideoUrl,
+} from '@/lib/teamMedia';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 const AUTO_SCROLL_SPEED = 1.1;
 const DRAG_THRESHOLD = 6;
 
-function ShortsVideoCard({ src, member, onClick }) {
+function ShortsVideoCard({ src, poster, member, onClick }) {
+  const containerRef = useRef(null);
   const videoRef = useRef(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    const container = containerRef.current;
+    if (!container) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          video.play().catch(() => {});
+          setShouldLoad(true);
+          const video = videoRef.current;
+          if (video && video.readyState >= 2) {
+            video.play().catch(() => {});
+          }
         } else {
-          video.pause();
+          videoRef.current?.pause();
         }
       },
-      { threshold: 0.4 }
+      { rootMargin: '120px', threshold: 0.15 }
     );
 
-    observer.observe(video);
+    observer.observe(container);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!shouldLoad) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    const onCanPlay = () => {
+      setIsReady(true);
+      video.play().catch(() => {});
+    };
+
+    video.addEventListener('canplay', onCanPlay);
+    return () => video.removeEventListener('canplay', onCanPlay);
+  }, [shouldLoad, src]);
 
   return (
     <button
@@ -35,17 +61,24 @@ function ShortsVideoCard({ src, member, onClick }) {
       onClick={onClick}
       className="group relative w-[180px] shrink-0 overflow-hidden rounded-2xl border border-white/10 text-left shadow-lg transition-transform duration-300 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:w-[200px]"
     >
-      <div className="relative aspect-[9/16] w-full">
-        <video
-          ref={videoRef}
-          src={src}
-          className="h-full w-full object-cover"
-          muted
-          loop
-          playsInline
-          autoPlay
-          preload="metadata"
+      <div ref={containerRef} className="relative aspect-[9/16] w-full bg-secondary/30">
+        <img
+          src={poster}
+          alt=""
+          className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-300 ${isReady ? 'opacity-0' : 'opacity-100'}`}
         />
+        {shouldLoad && (
+          <video
+            ref={videoRef}
+            src={src}
+            poster={poster}
+            className={`absolute inset-0 h-full w-full object-cover ${isReady ? 'opacity-100' : 'opacity-0'}`}
+            muted
+            loop
+            playsInline
+            preload="auto"
+          />
+        )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3">
           <span className="inline-block rounded bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white drop-shadow-md">
             {member.role}
@@ -72,7 +105,9 @@ export default function VideoShorts() {
   const items = t.team.members.map((member, i) => ({
     member,
     idx: i,
-    src: MEMBER_VIDEOS[i],
+    src: getCarouselVideoUrl(MEMBER_VIDEOS[i]),
+    poster: MEMBER_PHOTOS[i],
+    fullSrc: getFullVideoUrl(MEMBER_VIDEOS[i]),
   }));
 
   const marqueeItems = [...items, ...items];
@@ -133,9 +168,9 @@ export default function VideoShorts() {
     track.releasePointerCapture(e.pointerId);
   };
 
-  const handleCardClick = (member, idx) => {
+  const handleCardClick = (item) => {
     if (dragMoved.current) return;
-    setActive({ member, idx });
+    setActive(item);
   };
 
   return (
@@ -154,12 +189,13 @@ export default function VideoShorts() {
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
-          {marqueeItems.map(({ member, idx, src }, i) => (
+          {marqueeItems.map((item, i) => (
             <ShortsVideoCard
-              key={`${idx}-${i}`}
-              src={src}
-              member={member}
-              onClick={() => handleCardClick(member, idx)}
+              key={`${item.idx}-${i}`}
+              src={item.src}
+              poster={item.poster}
+              member={item.member}
+              onClick={() => handleCardClick(item)}
             />
           ))}
         </div>
@@ -190,11 +226,13 @@ export default function VideoShorts() {
               </button>
               <video
                 key={`shorts-modal-${active.idx}`}
-                src={MEMBER_VIDEOS[active.idx]}
+                src={active.fullSrc}
+                poster={active.poster}
                 className="aspect-[9/16] w-full bg-black object-contain"
                 controls
                 autoPlay
                 playsInline
+                preload="auto"
               />
               <div className="border-t border-white/10 p-4">
                 <span className="font-mono text-xs font-bold text-primary">{active.member.role}</span>

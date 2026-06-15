@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
-import { MEMBER_PHOTOS, MEMBER_VIDEOS } from '@/lib/teamMedia';
+import { MEMBER_PHOTOS, MEMBER_VIDEOS, getFullVideoUrl } from '@/lib/teamMedia';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play, Linkedin, Twitter } from 'lucide-react';
 
@@ -112,7 +112,7 @@ export default function Team() {
                 {videoPlaying ? (
                   <video
                     key={`modal-${selected.idx}`}
-                    src={MEMBER_VIDEOS[selected.idx]}
+                    src={getFullVideoUrl(MEMBER_VIDEOS[selected.idx])}
                     className="h-full w-full bg-black object-contain"
                     controls
                     autoPlay
