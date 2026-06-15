@@ -79,8 +79,8 @@ const translations = {
         { name: "Abdulaziz Mansurov", role: "CPO", desc: "Mahsulot va foydalanuvchi tajribasi" },
         { name: "Davron Uralov", role: "CCO", desc: "Kreativ yo'nalish va brending" },
         { name: "Zafar Ibragimov", role: "CTO", desc: "Texnik arxitektura" },
-        { name: "Faridun Bayenov", role: "BDM", desc: "Biznes rivojlantirish" },
-        { name: "Shaxzod Negmatov", role: "HRD", desc: "Jamoa va kadrlar" },
+        { name: "Faridun Bayonov", role: "BDM", desc: "Biznes rivojlantirish" },
+        { name: "Shaxzod Nematov", role: "HRD", desc: "Jamoa va kadrlar" },
         { name: "Ahadjon Muxamedjonov", role: "CMO", desc: "Marketing va o'sish" },
       ],
     },
@@ -279,7 +279,13 @@ const translations = {
   },
 };
 
-const I18nContext = createContext();
+const defaultI18n = {
+  lang: 'uz',
+  setLang: (_lang) => {},
+  t: translations.uz,
+};
+
+const I18nContext = createContext(defaultI18n);
 
 export function I18nProvider({ children }) {
   const [lang, setLang] = useState('uz');

@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from '@/components/landing/Navbar';
 import Hero from '@/components/landing/Hero';
+import VideoShorts from '@/components/landing/VideoShorts';
 import Partners from '@/components/landing/Partners';
 import Results from '@/components/landing/Results';
 import About from '@/components/landing/About';
@@ -20,6 +21,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <VideoShorts />
         <Partners />
         <Results />
         <About />

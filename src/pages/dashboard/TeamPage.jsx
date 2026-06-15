@@ -17,8 +17,8 @@ const members = [
   { name: 'Abdulaziz Mansurov', role: 'CPO', desc: 'Mahsulot va foydalanuvchi tajribasi', lead: true },
   { name: 'Davron Uralov', role: 'CCO', desc: 'Kreativ yo\'nalish va brending', lead: false },
   { name: 'Zafar Ibragimov', role: 'CTO', desc: 'Texnik arxitektura', lead: true },
-  { name: 'Faridun Bayenov', role: 'BDM', desc: 'Biznes rivojlantirish', lead: false },
-  { name: 'Shaxzod Negmatov', role: 'HRD', desc: 'Jamoa va kadrlar', lead: false },
+  { name: 'Faridun Bayonov', role: 'BDM', desc: 'Biznes rivojlantirish', lead: false },
+  { name: 'Shaxzod Nematov', role: 'HRD', desc: 'Jamoa va kadrlar', lead: false },
   { name: 'Ahadjon Muxamedjonov', role: 'CMO', desc: 'Marketing va o\'sish', lead: false },
 ];
 

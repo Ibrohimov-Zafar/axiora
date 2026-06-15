@@ -5,6 +5,11 @@ import { ArrowRight, Sparkles, Play, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FlowFieldBackground from '@/components/ui/flow-field-background';
 
+const HERO_VIDEO_URL =
+  'https://res.cloudinary.com/dgreqtwk6/video/upload/v1781431444/ahad_cnlu0q.mp4';
+const HERO_VIDEO_POSTER_URL =
+  'https://res.cloudinary.com/dgreqtwk6/image/upload/v1781547631/ChatGPT_Image_Jun_15_2026_11_18_39_PM_znve50.png';
+
 export default function Hero() {
   const { t } = useI18n();
   const [videoOpen, setVideoOpen] = useState(false);
@@ -128,16 +133,23 @@ export default function Hero() {
         >
           <div className="relative overflow-hidden rounded-xl border border-black/10 bg-white/80 shadow-2xl shadow-black/10 backdrop-blur-md dark:border-border/30 dark:bg-white/[0.03] dark:shadow-primary/10">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent pointer-events-none" />
-            <div className="relative aspect-video flex items-center justify-center bg-gradient-to-br from-white/70 via-secondary/50 to-background/90 dark:from-secondary/60 dark:via-background/80 dark:to-background">
+            <div className="relative aspect-video bg-black">
+              <img
+                src={HERO_VIDEO_POSTER_URL}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+              />
               <button
+                type="button"
                 onClick={() => setVideoOpen(true)}
-                className="group flex flex-col items-center gap-4"
+                className="group absolute inset-0 flex flex-col items-center justify-center bg-black/20 transition-colors hover:bg-black/35"
+                aria-label={t.hero.videoPlaceholder}
               >
-                <div className="w-20 h-20 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center group-hover:bg-primary/30 group-hover:scale-110 transition-all duration-300 shadow-lg shadow-primary/20">
-                  <Play className="w-8 h-8 text-primary ml-1" />
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/30 bg-white/15 shadow-lg shadow-black/30 backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-white/25">
+                  <Play className="ml-1 h-8 w-8 text-white" />
                 </div>
-                <span className="text-sm text-muted-foreground font-body group-hover:text-primary transition-colors">
-                  {t.hero.videoPlaceholder}
+                <span className="mt-4 font-body text-sm text-white/90 transition-colors group-hover:text-white">
+                  {/* {t.hero.videoPlaceholder} */}
                 </span>
               </button>
             </div>
@@ -179,14 +191,14 @@ export default function Hero() {
               >
                 <X className="w-5 h-5 text-white" />
               </button>
-              <div className="aspect-video flex items-center justify-center bg-gradient-to-br from-secondary to-background">
-                <div className="text-center space-y-3">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center mx-auto">
-                    <Play className="w-7 h-7 text-primary ml-1" />
-                  </div>
-                  <p className="text-muted-foreground font-body text-sm">{t.hero.videoPlaceholder}</p>
-                </div>
-              </div>
+              <video
+                key="hero-modal-video"
+                src={HERO_VIDEO_URL}
+                className="block w-full max-h-[80vh] bg-black object-contain"
+                controls
+                autoPlay
+                playsInline
+              />
             </motion.div>
           </motion.div>
         )}
