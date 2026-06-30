@@ -58,7 +58,7 @@ export default function Navbar() {
         <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-14 px-3 sm:px-4' : 'h-16 px-3 sm:px-5'}`}>
           <a href="#hero" className="flex items-center flex-shrink-0">
             <motion.img
-              src="/logo.png"
+              src="/image.png"
               alt="Axiora"
               animate={{ height: scrolled ? 34 : 42 }}
               transition={{ duration: 0.35 }}

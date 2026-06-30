@@ -66,7 +66,7 @@ export default function Dashboard() {
           title="Axiora"
         >
           <img
-            src="/logo.png"
+            src="/image.png"
             alt="Axiora"
             className={`object-contain shrink-0 ${collapsed ? 'h-8 w-8' : 'h-8 w-auto max-w-[2.25rem]'}`}
           />

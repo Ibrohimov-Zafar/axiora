@@ -2,7 +2,16 @@ import React from 'react';
 import { useI18n } from '@/lib/i18n';
 import { motion } from 'framer-motion';
 
-const partners = ['UUEA', 'ROYAL LLC', 'One-Stop'];
+const partners = [
+  'UUEA',
+  'Royal LLC',
+  'Rewardo',
+  'King Gold',
+  'Altara',
+  'Staff Date',
+  'Oversize',
+  'ZooCare',
+];
 
 export default function Partners() {
   const { t } = useI18n();

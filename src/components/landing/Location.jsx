@@ -2,42 +2,12 @@ import React from 'react';
 import { useI18n } from '@/lib/i18n';
 import { motion } from 'framer-motion';
 import { Navigation, MapPin } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
 
-/** @type {[number, number]} */
-const TASHKENT = [41.2995, 69.2401];
+const MAPS_EMBED_URL =
+  'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1252.0471508044245!2d69.24513586314492!3d41.31293851881912!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38ae8b001cfd79fb%3A0xceadf5e5248f97ce!2sSQB%20Tower%20-%20Sanoat%20Qurilish%20Bank!5e0!3m2!1sen!2s!4v1782843891195!5m2!1sen!2s';
 
-const pinIcon = new L.DivIcon({
-  className: '',
-  html: `
-    <div style="position:relative;width:40px;height:40px">
-      <div style="
-        position:absolute;inset:0;
-        background:rgba(139,53,255,0.25);
-        border-radius:50%;
-        animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;
-      "></div>
-      <div style="
-        position:relative;
-        width:40px;height:40px;
-        background:rgb(139,53,255);
-        border:3px solid white;
-        border-radius:50% 50% 50% 0;
-        transform:rotate(-45deg);
-        box-shadow:0 4px 20px rgba(139,53,255,0.5);
-        display:flex;align-items:center;justify-content:center;
-      ">
-        <svg style="transform:rotate(45deg);color:white" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
-        </svg>
-      </div>
-    </div>
-  `,
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
-  popupAnchor: [0, -44],
-});
+const MAPS_LINK =
+  'https://www.google.com/maps/place/SQB+Tower+-+Sanoat+Qurilish+Bank/@41.3129385,69.2451359,17z';
 
 export default function Location() {
   const { t } = useI18n();
@@ -64,30 +34,19 @@ export default function Location() {
           transition={{ delay: 0.15 }}
         >
           <div className="relative overflow-hidden rounded-2xl border border-black/10 dark:border-border/30 shadow-2xl shadow-primary/10 dark:shadow-primary/5">
-            <MapContainer
-              center={TASHKENT}
-              zoom={14}
-              style={{ height: '420px', width: '100%' }}
-              scrollWheelZoom={false}
-              zoomControl={true}
-              attributionControl={false}
-            >
-              <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
-              />
-              <Marker position={TASHKENT} icon={pinIcon}>
-                <Popup>
-                  <div style={{ fontFamily: 'Space Grotesk, sans-serif', minWidth: '140px' }}>
-                    <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: '4px' }}>Axiora</div>
-                    <div style={{ fontSize: '12px', color: '#888' }}>{t.location.desc}</div>
-                  </div>
-                </Popup>
-              </Marker>
-            </MapContainer>
+            <iframe
+              src={MAPS_EMBED_URL}
+              width="100%"
+              height="450"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+              title="Axiora location — SQB Tower"
+              className="block w-full"
+            />
 
-            {/* Info card overlay */}
-            <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-[300px] z-[1000]">
+            <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-[300px] z-10">
               <div className="flex items-start gap-3 rounded-2xl border border-white/70 bg-white/90 p-4 shadow-xl shadow-black/10 backdrop-blur-xl dark:border-white/10 dark:bg-background/85">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Navigation className="h-5 w-5" />
@@ -96,7 +55,7 @@ export default function Location() {
                   <p className="font-heading text-sm font-semibold text-foreground">{t.location.office}</p>
                   <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t.location.desc}</p>
                   <a
-                    href={`https://maps.google.com/?q=${TASHKENT[0]},${TASHKENT[1]}`}
+                    href={MAPS_LINK}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"

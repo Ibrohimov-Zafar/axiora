@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Logo */}
           <div className="flex items-center">
-            <img src="/logo.png" alt="Axiora" className="h-8 w-auto object-contain" />
+            <img src="/image.png" alt="Axiora" className="h-8 w-auto object-contain" />
           </div>
 
           {/* Lang toggle */}

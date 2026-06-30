@@ -45,7 +45,7 @@ export default function Login() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <a href="/" className="mb-6">
-            <img src="/logo.png" alt="Axiora" className="h-10 w-auto" />
+            <img src="/image.png" alt="Axiora" className="h-10 w-auto" />
           </a>
           <h1 className="font-heading font-bold text-2xl text-foreground">Admin panel</h1>
           <p className="text-sm text-muted-foreground font-body mt-1">Tizimga kirish uchun ma'lumot kiriting</p>

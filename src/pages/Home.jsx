@@ -5,7 +5,7 @@ import VideoShorts from '@/components/landing/VideoShorts';
 import Partners from '@/components/landing/Partners';
 import Results from '@/components/landing/Results';
 import About from '@/components/landing/About';
-import Portfolio from '@/components/landing/Portfolio';
+// import Portfolio from '@/components/landing/Portfolio';
 import Metrics from '@/components/landing/Metrics';
 import Team from '@/components/landing/Team';
 import Testimonials from '@/components/landing/Testimonials';
@@ -25,7 +25,7 @@ export default function Home() {
         <Partners />
         <Results />
         <About />
-        <Portfolio />
+        {/* <Portfolio /> */}
         <Metrics />
         <Team />
         <Testimonials />
