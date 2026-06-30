@@ -54,7 +54,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <span className="text-xs text-muted-foreground/60 font-heading tracking-wider block">{t.contact.phone_label}</span>
-                  <span className="text-foreground font-body">+998 XX XXX XX XX</span>
+                  <span className="text-foreground font-body">+998 94 336 99 99 </span>
                 </div>
               </div>
 
