@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
-import { MEMBER_PHOTOS, MEMBER_VIDEOS, getFullVideoUrl } from '@/lib/teamMedia';
+import { MEMBER_PHOTOS, MEMBER_VIDEOS, getFullVideoUrl, getOptimizedImageUrl } from '@/lib/teamMedia';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play, Linkedin, Twitter } from 'lucide-react';
 
@@ -21,7 +21,7 @@ export default function Team() {
 
   return (
     <section id="team" className="relative py-16 md:py-28">
-      <div className="pointer-events-none absolute bottom-0 left-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[150px]" />
+      <div className="pointer-events-none absolute bottom-0 left-0 hidden h-[500px] w-[500px] rounded-full bg-primary/5 blur-[150px] md:block" />
       <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -49,8 +49,10 @@ export default function Team() {
 
                 <div className="relative aspect-[3/4] overflow-hidden">
                   <img
-                    src={MEMBER_PHOTOS[i]}
+                    src={getOptimizedImageUrl(MEMBER_PHOTOS[i], 480)}
                     alt={member.name}
+                    loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -85,7 +87,7 @@ export default function Team() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4 md:backdrop-blur-sm"
             onClick={closeModal}
           >
             <motion.div
@@ -94,7 +96,7 @@ export default function Team() {
               exit={{ opacity: 0, y: 40 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/20 bg-white/95 shadow-2xl shadow-primary/10 backdrop-blur-2xl dark:border-border/50 dark:bg-card/95 sm:max-w-lg sm:rounded-3xl"
+              className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/20 bg-white/95 shadow-2xl shadow-primary/10 dark:border-border/50 dark:bg-card/95 sm:max-w-lg sm:rounded-3xl md:backdrop-blur-2xl"
             >
               <div className="flex shrink-0 justify-center pb-1 pt-3 sm:hidden">
                 <div className="h-1 w-10 rounded-full bg-black/20 dark:bg-white/20" />

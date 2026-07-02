@@ -1,6 +1,21 @@
 import React, { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
+const MOBILE_QUERY = "(max-width: 768px)";
+const MOBILE_PARTICLE_CAP = 100;
+
+function getEffectiveParticleCount(requested) {
+  if (typeof window === "undefined") return requested;
+  const isMobile = window.matchMedia(MOBILE_QUERY).matches;
+  if (!isMobile) return requested;
+  return Math.min(MOBILE_PARTICLE_CAP, Math.round(requested * 0.12));
+}
+
+function prefersReducedMotion() {
+  return typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 export default function FlowFieldBackground({
   className,
   color = "#a855f7",
@@ -13,6 +28,8 @@ export default function FlowFieldBackground({
   const containerRef = useRef(null);
 
   useEffect(() => {
+    if (prefersReducedMotion()) return;
+
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
@@ -24,7 +41,10 @@ export default function FlowFieldBackground({
     let height = 0;
     let particles = [];
     let animationFrameId;
+    let isVisible = document.visibilityState !== "hidden";
     let mouse = { x: -1000, y: -1000 };
+    const effectiveCount = getEffectiveParticleCount(particleCount);
+    const isMobile = window.matchMedia(MOBILE_QUERY).matches;
 
     class Particle {
       constructor() {
@@ -91,7 +111,7 @@ export default function FlowFieldBackground({
       width = nextWidth;
       height = nextHeight;
 
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -99,13 +119,17 @@ export default function FlowFieldBackground({
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
       particles = [];
-      for (let i = 0; i < particleCount; i++) {
+      for (let i = 0; i < effectiveCount; i++) {
         particles.push(new Particle());
       }
       return true;
     };
 
     const animate = () => {
+      if (!isVisible) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
       if (width < 2 || height < 2) {
         animationFrameId = requestAnimationFrame(animate);
         return;
@@ -131,23 +155,40 @@ export default function FlowFieldBackground({
       mouse.y = -1000;
     };
 
+    const handleVisibility = () => {
+      isVisible = document.visibilityState !== "hidden";
+    };
+
     init();
     animate();
 
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(container);
     window.addEventListener("resize", handleResize);
+    document.addEventListener("visibilitychange", handleVisibility);
     container.addEventListener("mousemove", handleMouseMove);
     container.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
+      document.removeEventListener("visibilitychange", handleVisibility);
       container.removeEventListener("mousemove", handleMouseMove);
       container.removeEventListener("mouseleave", handleMouseLeave);
       cancelAnimationFrame(animationFrameId);
     };
   }, [color, trailColor, trailOpacity, particleCount, speed]);
+
+  if (prefersReducedMotion()) {
+    return (
+      <div
+        className={cn(
+          "absolute inset-0 min-h-full overflow-hidden bg-gradient-to-br from-primary/10 via-transparent to-accent/5",
+          className
+        )}
+      />
+    );
+  }
 
   return (
     <div ref={containerRef} className={cn("absolute inset-0 min-h-full overflow-hidden", className)}>

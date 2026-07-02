@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useI18n } from '@/lib/i18n';
 import { api } from '@/api/client';
+import { getOptimizedImageUrl } from '@/lib/teamMedia';
 import { motion } from 'framer-motion';
 
 export default function Partners() {
@@ -38,8 +39,10 @@ export default function Partners() {
               >
                 {partner.logo_url ? (
                   <img
-                    src={partner.logo_url}
+                    src={getOptimizedImageUrl(partner.logo_url, 320)}
                     alt={partner.name}
+                    loading="lazy"
+                    decoding="async"
                     className="max-h-12 max-w-[160px] object-contain opacity-80 hover:opacity-100 transition-opacity"
                   />
                 ) : (

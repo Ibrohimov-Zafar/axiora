@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
+import { useIsDark } from '@/hooks/use-is-dark';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Sparkles, Play, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FlowFieldBackground from '@/components/ui/flow-field-background';
+import { getOptimizedImageUrl } from '@/lib/teamMedia';
 
 const HERO_VIDEO_URL =
   'https://res.cloudinary.com/dgreqtwk6/video/upload/v1781431444/ahad_cnlu0q.mp4';
@@ -12,28 +14,33 @@ const HERO_VIDEO_POSTER_URL =
 
 export default function Hero() {
   const { t } = useI18n();
+  const isDark = useIsDark();
   const [videoOpen, setVideoOpen] = useState(false);
 
   return (
     <section id="hero" className="hero-surface relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-background pt-20">
       <div aria-hidden className="pointer-events-none absolute inset-0 min-h-[100dvh]">
-        <FlowFieldBackground
-          color="#8b35ff"
-          trailColor="250, 250, 250"
-          trailOpacity={0.045}
-          particleCount={820}
-          speed={0.72}
-          className="opacity-65 dark:opacity-0"
-        />
-        <FlowFieldBackground
-          color="#a855f7"
-          trailColor="0, 0, 0"
-          trailOpacity={0.08}
-          particleCount={640}
-          speed={0.8}
-          className="opacity-0 dark:opacity-75"
-        />
-        <div className="hero-light-ribbons absolute inset-0 dark:hidden" />
+        {!isDark && (
+          <FlowFieldBackground
+            color="#8b35ff"
+            trailColor="250, 250, 250"
+            trailOpacity={0.045}
+            particleCount={820}
+            speed={0.72}
+            className="opacity-65"
+          />
+        )}
+        {isDark && (
+          <FlowFieldBackground
+            color="#a855f7"
+            trailColor="0, 0, 0"
+            trailOpacity={0.08}
+            particleCount={640}
+            speed={0.8}
+            className="opacity-75"
+          />
+        )}
+        {!isDark && <div className="hero-light-ribbons absolute inset-0" />}
         <div className="hero-grid absolute inset-0" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/35 to-background/90 dark:from-background/10 dark:via-background/30 dark:to-background" />
       </div>
@@ -135,8 +142,10 @@ export default function Hero() {
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent pointer-events-none" />
             <div className="relative aspect-video bg-black">
               <img
-                src={HERO_VIDEO_POSTER_URL}
+                src={getOptimizedImageUrl(HERO_VIDEO_POSTER_URL, 800)}
                 alt=""
+                loading="eager"
+                decoding="async"
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <button

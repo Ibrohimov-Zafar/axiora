@@ -1,19 +1,56 @@
-import React from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import Navbar from '@/components/landing/Navbar';
 import Hero from '@/components/landing/Hero';
-import VideoShorts from '@/components/landing/VideoShorts';
-import Partners from '@/components/landing/Partners';
-import Results from '@/components/landing/Results';
-import About from '@/components/landing/About';
-// import Portfolio from '@/components/landing/Portfolio';
-import Metrics from '@/components/landing/Metrics';
-import Team from '@/components/landing/Team';
-import Testimonials from '@/components/landing/Testimonials';
-import Process from '@/components/landing/Process';
-import Location from '@/components/landing/Location';
-import FAQ from '@/components/landing/FAQ';
-import Contact from '@/components/landing/Contact';
-import Footer from '@/components/landing/Footer';
+
+const VideoShorts = lazy(() => import('@/components/landing/VideoShorts'));
+const Partners = lazy(() => import('@/components/landing/Partners'));
+const Results = lazy(() => import('@/components/landing/Results'));
+const About = lazy(() => import('@/components/landing/About'));
+const Metrics = lazy(() => import('@/components/landing/Metrics'));
+const Team = lazy(() => import('@/components/landing/Team'));
+const Testimonials = lazy(() => import('@/components/landing/Testimonials'));
+const Process = lazy(() => import('@/components/landing/Process'));
+const Location = lazy(() => import('@/components/landing/Location'));
+const FAQ = lazy(() => import('@/components/landing/FAQ'));
+const Contact = lazy(() => import('@/components/landing/Contact'));
+const Footer = lazy(() => import('@/components/landing/Footer'));
+
+function SectionFallback() {
+  return <div className="min-h-[120px]" aria-hidden />;
+}
+
+function LazySection({ children }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px', threshold: 0 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref}>
+      {visible ? (
+        <Suspense fallback={<SectionFallback />}>{children}</Suspense>
+      ) : (
+        <SectionFallback />
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
   return (
@@ -21,20 +58,43 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
-        <VideoShorts />
-        <Partners />
-        <Results />
-        <About />
-        {/* <Portfolio /> */}
-        <Metrics />
-        <Team />
-        <Testimonials />
-        <Process />
-        <Location />
-        <FAQ />
-        <Contact />
+        <LazySection>
+          <VideoShorts />
+        </LazySection>
+        <LazySection>
+          <Partners />
+        </LazySection>
+        <LazySection>
+          <Results />
+        </LazySection>
+        <LazySection>
+          <About />
+        </LazySection>
+        <LazySection>
+          <Metrics />
+        </LazySection>
+        <LazySection>
+          <Team />
+        </LazySection>
+        <LazySection>
+          <Testimonials />
+        </LazySection>
+        <LazySection>
+          <Process />
+        </LazySection>
+        <LazySection>
+          <Location />
+        </LazySection>
+        <LazySection>
+          <FAQ />
+        </LazySection>
+        <LazySection>
+          <Contact />
+        </LazySection>
       </main>
-      <Footer />
+      <Suspense fallback={<SectionFallback />}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

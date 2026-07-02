@@ -40,6 +40,29 @@ export function getFullVideoUrl(url) {
   return applyCloudinaryVideoTransform(url, 'q_auto,f_auto:video');
 }
 
+function applyCloudinaryImageTransform(url, transform) {
+  const marker = '/image/upload/';
+  const index = url.indexOf(marker);
+  if (index === -1) return url;
+
+  const prefix = url.slice(0, index + marker.length);
+  const suffix = url.slice(index + marker.length);
+  if (!/^v\d+\//.test(suffix)) return url;
+  if (suffix.includes(`${transform}/`)) return url;
+
+  return `${prefix}${transform}/${suffix}`;
+}
+
+/** Responsive rasm — mobil kichik, desktop katta */
+export function getOptimizedImageUrl(url, width = 400) {
+  if (!url) return url;
+  return applyCloudinaryImageTransform(url, `f_auto,q_auto,w_${width}`);
+}
+
+export function getPosterImageUrl(url) {
+  return getOptimizedImageUrl(url, 400);
+}
+
 export function getYoutubeEmbedId(url) {
   if (!url) return null;
   try {

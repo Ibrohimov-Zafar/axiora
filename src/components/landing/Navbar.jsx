@@ -4,6 +4,7 @@ import { useI18n } from '@/lib/i18n';
 import { Menu, X, Sun, Moon, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { applyThemeClass, getInitialDark, saveTheme } from '@/lib/theme';
 
 const navLinks = [
   { key: 'home', href: '#hero' },
@@ -18,16 +19,11 @@ export default function Navbar() {
   const { lang, setLang, t } = useI18n();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [dark, setDark] = useState(() => {
-    const saved = localStorage.getItem('axiora_theme');
-    if (saved === 'light') return false;
-    if (saved === 'dark') return true;
-    return true;
-  });
+  const [dark, setDark] = useState(getInitialDark);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', dark);
-    localStorage.setItem('axiora_theme', dark ? 'dark' : 'light');
+    applyThemeClass(dark);
+    saveTheme(dark);
   }, [dark]);
 
   useEffect(() => {
@@ -47,7 +43,7 @@ export default function Navbar() {
       className="fixed left-0 right-0 top-0 z-50 px-4 pt-3 sm:pt-4"
     >
       <div
-        className={`mx-auto max-w-7xl rounded-2xl border backdrop-blur-2xl transition-all duration-500 ${
+        className={`mx-auto max-w-7xl rounded-2xl border bg-background/95 md:backdrop-blur-2xl transition-all duration-500 ${
           mobileOpen
             ? 'border-black/10 bg-background shadow-[0_18px_60px_rgba(15,23,42,0.10)] dark:border-white/10 dark:bg-background dark:shadow-black/30'
             : scrolled

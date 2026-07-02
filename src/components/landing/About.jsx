@@ -10,7 +10,7 @@ export default function About() {
 
   return (
     <section id="about" className="py-16 md:py-28 relative">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px]" />
+      <div className="absolute top-0 right-0 hidden h-[500px] w-[500px] rounded-full bg-primary/5 blur-[150px] md:block" />
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* Left */}

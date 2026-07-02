@@ -7,7 +7,7 @@ export default function Process() {
 
   return (
     <section id="process" className="py-16 md:py-28 relative">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
+      <div className="absolute top-0 left-1/2 hidden h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary/5 blur-[150px] md:block" />
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

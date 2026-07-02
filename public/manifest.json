@@ -1,0 +1,16 @@
+{
+  "name": "Axiora",
+  "short_name": "Axiora",
+  "description": "Innovatsiyalar orqali kelajakni quramiz",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030303",
+  "theme_color": "#a855f7",
+  "icons": [
+    {
+      "src": "/image.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

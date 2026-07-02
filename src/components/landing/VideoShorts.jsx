@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   getCarouselVideoUrl,
   getFullVideoUrl,
+  getPosterImageUrl,
   getYoutubeEmbedId,
 } from '@/lib/teamMedia';
 import { api } from '@/api/client';
@@ -11,12 +12,14 @@ import { X } from 'lucide-react';
 
 const AUTO_SCROLL_SPEED = 1.1;
 const DRAG_THRESHOLD = 8;
+const MOBILE_QUERY = '(max-width: 768px)';
 
 function ShortsVideoCard({ src, poster, member, onClick }) {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const posterSrc = poster ? getPosterImageUrl(poster) : null;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -31,6 +34,7 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
             video.play().catch(() => {});
           }
         } else {
+          setIsReady(false);
           videoRef.current?.pause();
         }
       },
@@ -51,6 +55,10 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
       video.play().catch(() => {});
     };
 
+    if (video.readyState >= 3) {
+      onCanPlay();
+    }
+
     video.addEventListener('canplay', onCanPlay);
     return () => video.removeEventListener('canplay', onCanPlay);
   }, [shouldLoad, src]);
@@ -67,23 +75,26 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
       className="group relative w-[180px] shrink-0 overflow-hidden rounded-2xl border border-white/10 text-left shadow-lg transition-transform duration-300 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:w-[200px]"
     >
       <div ref={containerRef} className="relative aspect-[9/16] w-full bg-secondary/30">
-        {poster && (
+        {posterSrc ? (
           <img
-            src={poster}
+            src={posterSrc}
             alt=""
+            loading="lazy"
+            decoding="async"
             className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-300 ${isReady ? 'opacity-0' : 'opacity-100'}`}
           />
+        ) : (
+          <div className={`absolute inset-0 bg-gradient-to-b from-primary/20 via-secondary/40 to-background transition-opacity duration-300 ${isReady ? 'opacity-0' : 'opacity-100'}`} />
         )}
         {shouldLoad && (
           <video
             ref={videoRef}
             src={src}
-            poster={poster}
             className={`absolute inset-0 h-full w-full object-cover ${isReady ? 'opacity-100' : 'opacity-0'}`}
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
           />
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3">
@@ -101,6 +112,8 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
 
 export default function VideoShorts() {
   const [active, setActive] = useState(null);
+  const sectionRef = useRef(null);
+  const [sectionVisible, setSectionVisible] = useState(false);
 
   const { data: shorts = [], isLoading, isError } = useQuery({
     queryKey: ['shorts'],
@@ -134,8 +147,23 @@ export default function VideoShorts() {
   }, []);
 
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setSectionVisible(entry.isIntersecting),
+      { rootMargin: '100px', threshold: 0 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     const track = trackRef.current;
-    if (!track || items.length === 0) return;
+    if (!track || items.length === 0 || !sectionVisible) return;
+
+    const isMobile = window.matchMedia(MOBILE_QUERY).matches;
+    if (isMobile) return;
 
     let rafId;
     const tick = () => {
@@ -148,7 +176,7 @@ export default function VideoShorts() {
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [normalizeScroll, items.length]);
+  }, [normalizeScroll, items.length, sectionVisible]);
 
   const handlePointerDown = (e) => {
     if (e.target.closest('[data-shorts-card]')) return;
@@ -209,7 +237,7 @@ export default function VideoShorts() {
   }
 
   return (
-    <section className="relative overflow-hidden py-8 md:py-12">
+    <section ref={sectionRef} className="relative overflow-hidden py-8 md:py-12">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -271,12 +299,12 @@ export default function VideoShorts() {
                 <video
                   key={`shorts-modal-${active.id}`}
                   src={active.fullSrc}
-                  poster={active.poster}
+                  poster={active.poster ? getPosterImageUrl(active.poster) : undefined}
                   className="aspect-[9/16] w-full bg-black object-contain"
                   controls
                   autoPlay
                   playsInline
-                  preload="auto"
+                  preload="metadata"
                 />
               )}
               <div className="border-t border-white/10 p-4">

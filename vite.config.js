@@ -29,6 +29,18 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-motion': ['framer-motion'],
+            'vendor-query': ['@tanstack/react-query'],
+            'vendor-charts': ['recharts'],
+          },
+        },
+      },
+    },
     server: {
       proxy: {
         '/api/auth': { target: 'http://localhost:3001', changeOrigin: true },

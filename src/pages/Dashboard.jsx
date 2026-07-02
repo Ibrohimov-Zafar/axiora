@@ -6,6 +6,7 @@ import {
   Settings, LogOut, Menu, Sun, Moon, Bell, ChevronLeft, Video, Handshake,
 } from 'lucide-react';
 import { adminLogout, verifyAdminSession } from '@/lib/adminAuth';
+import { applyThemeClass, getInitialDark, saveTheme } from '@/lib/theme';
 import { api } from '@/api/client';
 
 const NAV = [
@@ -25,11 +26,7 @@ export default function Dashboard() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [dark, setDark] = useState(() => {
-    const saved = localStorage.getItem('axiora_theme');
-    if (saved === 'light') return false;
-    return true;
-  });
+  const [dark, setDark] = useState(getInitialDark);
 
   useEffect(() => {
     verifyAdminSession().then((ok) => {
@@ -45,8 +42,8 @@ export default function Dashboard() {
   }, [location.pathname]);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', dark);
-    localStorage.setItem('axiora_theme', dark ? 'dark' : 'light');
+    applyThemeClass(dark);
+    saveTheme(dark);
   }, [dark]);
 
   useEffect(() => {

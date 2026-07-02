@@ -10,12 +10,20 @@
     <meta property="og:url" content="https://axiora-team.com" />
     <link rel="canonical" href="https://axiora-team.com" />
     <link rel="manifest" href="/manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap" />
     <title>Axiora — Innovatsiyalar orqali kelajakni quramiz</title>
     <script>
       (function () {
         var theme = localStorage.getItem('axiora_theme');
+        var isMobile = window.matchMedia('(max-width: 768px)').matches;
         if (theme === 'light') {
           document.documentElement.classList.remove('dark');
+        } else if (theme === 'dark' || !theme) {
+          document.documentElement.classList.add('dark');
+        } else if (isMobile) {
+          document.documentElement.classList.add('dark');
         } else {
           document.documentElement.classList.add('dark');
         }

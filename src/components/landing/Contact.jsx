@@ -43,7 +43,7 @@ export default function Contact() {
 
   return (
     <section id="contact" className="py-16 md:py-28 relative">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px]" />
+      <div className="absolute top-0 right-0 hidden h-[500px] w-[500px] rounded-full bg-primary/5 blur-[150px] md:block" />
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
