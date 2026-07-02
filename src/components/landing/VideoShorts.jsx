@@ -76,7 +76,6 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
     <button
       type="button"
       data-shorts-card
-      onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => {
         e.stopPropagation();
         onClick();
@@ -252,8 +251,6 @@ export default function VideoShorts() {
   }, [normalizeScroll, items.length, sectionVisible, isMobile]);
 
   const handlePointerDown = (e) => {
-    if (e.target.closest('[data-shorts-card]')) return;
-
     const track = trackRef.current;
     if (!track) return;
 
@@ -271,6 +268,7 @@ export default function VideoShorts() {
     const delta = dragStartX.current - e.clientX;
     if (Math.abs(delta) > DRAG_THRESHOLD) {
       dragMoved.current = true;
+      e.preventDefault();
     }
 
     track.scrollLeft = scrollStart.current + delta;
@@ -319,7 +317,7 @@ export default function VideoShorts() {
       >
         <div
           ref={trackRef}
-          className="flex cursor-grab gap-3 overflow-x-auto active:cursor-grabbing [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-4 touch-pan-x"
+          className="flex cursor-grab select-none gap-3 overflow-x-auto active:cursor-grabbing [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-4 touch-pan-x"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
