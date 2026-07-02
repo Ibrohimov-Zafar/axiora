@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Outlet, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, FolderOpen, Users, MessageSquare, Globe2,
-  Settings, LogOut, Menu, Sun, Moon, Bell, ChevronLeft, Video,
+  Settings, LogOut, Menu, Sun, Moon, Bell, ChevronLeft, Video, Handshake,
 } from 'lucide-react';
 import { adminLogout, verifyAdminSession } from '@/lib/adminAuth';
 import { api } from '@/api/client';
@@ -14,6 +14,7 @@ const NAV = [
   { to: '/dashboard/team', label: 'Jamoa', icon: Users },
   { to: '/dashboard/messages', label: 'Xabarlar', icon: MessageSquare, badgeKey: 'messages' },
   { to: '/dashboard/shorts', label: 'Video Shorts', icon: Video },
+  { to: '/dashboard/partners', label: 'Hamkorlar', icon: Handshake },
   { to: '/dashboard/visitors', label: 'Tashriflar', icon: Globe2 },
   { to: '/dashboard/settings', label: 'Sozlamalar', icon: Settings },
 ];

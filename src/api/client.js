@@ -102,6 +102,8 @@ export const api = {
 
   getTeam: () => apiFetch('/team', { auth: true }),
 
+  getTeamPublic: () => apiFetch('/team'),
+
   createTeamMember: (body) =>
     apiFetch('/team', { method: 'POST', body: JSON.stringify(body), auth: true }),
 
@@ -123,6 +125,19 @@ export const api = {
 
   deleteShort: (id) =>
     apiFetch(`/shorts/${id}`, { method: 'DELETE', auth: true }),
+
+  getPartners: () => apiFetch('/partners'),
+
+  getPartnersAdmin: () => apiFetch('/partners', { auth: true }),
+
+  createPartner: (body) =>
+    apiFetch('/partners', { method: 'POST', body: JSON.stringify(body), auth: true }),
+
+  updatePartner: (id, body) =>
+    apiFetch(`/partners/${id}`, { method: 'PATCH', body: JSON.stringify(body), auth: true }),
+
+  deletePartner: (id) =>
+    apiFetch(`/partners/${id}`, { method: 'DELETE', auth: true }),
 
   recordVisit: (body) =>
     apiFetch('/visits', { method: 'POST', body: JSON.stringify(body) }),

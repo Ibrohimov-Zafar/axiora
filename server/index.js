@@ -13,6 +13,7 @@ import teamRoutes from './routes/team.js';
 import visitsRoutes from './routes/visits.js';
 import statsRoutes from './routes/stats.js';
 import shortsRoutes from './routes/shorts.js';
+import partnersRoutes from './routes/partners.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3001;
@@ -38,6 +39,7 @@ app.use('/api/team', teamRoutes);
 app.use('/api/visits', visitsRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/shorts', shortsRoutes);
+app.use('/api/partners', partnersRoutes);
 
 // Topilmagan API yo'llari
 app.use('/api', (req, res) => {

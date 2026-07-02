@@ -4,7 +4,7 @@ import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/', requireAuth, (_req, res) => {
+router.get('/', (_req, res) => {
   const members = db.prepare('SELECT * FROM team_members ORDER BY sort_order ASC, id ASC').all();
   res.json(members.map(formatMember));
 });

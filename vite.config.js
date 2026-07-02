@@ -39,6 +39,7 @@ export default defineConfig(({ mode }) => {
         '/api/visits': { target: 'http://localhost:3001', changeOrigin: true },
         '/api/stats': { target: 'http://localhost:3001', changeOrigin: true },
         '/api/shorts': { target: 'http://localhost:3001', changeOrigin: true },
+        '/api/partners': { target: 'http://localhost:3001', changeOrigin: true },
         '/api/health': { target: 'http://localhost:3001', changeOrigin: true },
       },
     },

@@ -116,8 +116,35 @@ function seedShorts() {
   console.log(`${shortsSeed.length} ta video short seed qilindi`);
 }
 
+const partnersSeed = [
+  'UUEA',
+  'Royal LLC',
+  'Rewardo',
+  'King Gold',
+  'Altara',
+  'Staff Date',
+  'Oversize',
+  'ZooCare',
+];
+
+function seedPartners() {
+  const count = db.prepare('SELECT COUNT(*) as c FROM partners').get().c;
+  if (count > 0) return;
+
+  const insert = db.prepare(`
+    INSERT INTO partners (name, sort_order)
+    VALUES (@name, @sort_order)
+  `);
+
+  partnersSeed.forEach((name, i) => {
+    insert.run({ name, sort_order: i });
+  });
+  console.log(`${partnersSeed.length} ta hamkor seed qilindi`);
+}
+
 seedAdmin();
 seedProjects();
 seedTeam();
 seedShorts();
+seedPartners();
 console.log('Seed tugallandi');
