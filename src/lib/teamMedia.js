@@ -39,3 +39,18 @@ export function getCarouselVideoUrl(url) {
 export function getFullVideoUrl(url) {
   return applyCloudinaryVideoTransform(url, 'q_auto,f_auto:video');
 }
+
+export function getYoutubeEmbedId(url) {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('/')[0];
+    if (u.pathname.includes('/shorts/')) return u.pathname.split('/shorts/')[1]?.split('/')[0];
+    const v = u.searchParams.get('v');
+    if (v) return v;
+    if (u.pathname.startsWith('/embed/')) return u.pathname.split('/embed/')[1]?.split('/')[0];
+  } catch {
+    return null;
+  }
+  return null;
+}

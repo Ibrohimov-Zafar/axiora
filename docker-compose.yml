@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - DB_PATH=/app/data/axiora.db
+      - SITE_URL=https://axiora-team.com
+      - CORS_ORIGIN=https://axiora-team.com,https://www.axiora-team.com
+    volumes:
+      - ./data:/app/data
+    expose:
+      - "3001"
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app

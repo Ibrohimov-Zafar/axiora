@@ -15,18 +15,17 @@ export default function Login() {
     if (isAdminLoggedIn()) navigate('/dashboard', { replace: true });
   }, [navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    setTimeout(() => {
-      if (adminLogin(form.username, form.password)) {
-        navigate('/dashboard', { replace: true });
-      } else {
-        setError("Login yoki parol noto'g'ri");
-        setLoading(false);
-      }
-    }, 600);
+    try {
+      await adminLogin(form.username, form.password);
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      setError(err.data?.error || err.message || "Login yoki parol noto'g'ri");
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,7 +41,6 @@ export default function Login() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-sm"
       >
-        {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <a href="/" className="mb-6">
             <img src="/image.png" alt="Axiora" className="h-10 w-auto" />
@@ -51,10 +49,8 @@ export default function Login() {
           <p className="text-sm text-muted-foreground font-body mt-1">Tizimga kirish uchun ma'lumot kiriting</p>
         </div>
 
-        {/* Card */}
         <div className="rounded-2xl border border-border/60 bg-card/90 shadow-xl shadow-primary/5 p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Username */}
             <div className="space-y-1.5">
               <label className="text-xs font-heading tracking-wider text-muted-foreground">Login</label>
               <div className="relative">
@@ -63,14 +59,13 @@ export default function Login() {
                   type="text"
                   value={form.username}
                   onChange={(e) => setForm({ ...form, username: e.target.value })}
-                  placeholder="admin1"
+                  placeholder="admin"
                   required
                   className="w-full h-11 pl-10 pr-4 rounded-xl border border-border/60 bg-background text-sm font-body text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors"
                 />
               </div>
             </div>
 
-            {/* Password */}
             <div className="space-y-1.5">
               <label className="text-xs font-heading tracking-wider text-muted-foreground">Parol</label>
               <div className="relative">
@@ -93,7 +88,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Error */}
             {error && (
               <motion.p
                 initial={{ opacity: 0, y: -4 }}
@@ -104,7 +98,6 @@ export default function Login() {
               </motion.p>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}

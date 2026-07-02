@@ -13,6 +13,7 @@ import TeamPage from '@/pages/dashboard/TeamPage';
 import Messages from '@/pages/dashboard/Messages';
 import DashSettings from '@/pages/dashboard/DashSettings';
 import VisitorsPage from '@/pages/dashboard/VisitorsPage';
+import ShortsPage from '@/pages/dashboard/ShortsPage';
 import VisitTracker from '@/components/VisitTracker';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
               <Route path="team" element={<TeamPage />} />
               <Route path="messages" element={<Messages />} />
               <Route path="visitors" element={<VisitorsPage />} />
+              <Route path="shorts" element={<ShortsPage />} />
               <Route path="settings" element={<DashSettings />} />
             </Route>
             <Route path="*" element={<PageNotFound />} />

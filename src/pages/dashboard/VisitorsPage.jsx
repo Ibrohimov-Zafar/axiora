@@ -5,9 +5,8 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  getVisits, getVisitStats, formatVisitTime, clearVisits, seedDemoVisits,
-} from '@/lib/visitTracker';
+import { api } from '@/api/client';
+import { getVisitStats, formatVisitTime } from '@/lib/visitTracker';
 
 const REFERRER_STYLES = {
   direct: 'bg-slate-500/10 text-slate-600 dark:text-slate-300',
@@ -34,42 +33,35 @@ export default function VisitorsPage() {
   const [search, setSearch] = useState('');
   const [pageFilter, setPageFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
 
-  const load = useCallback(() => {
-    seedDemoVisits();
-    setVisits(getVisits());
-  }, []);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.getVisits({
+        search: search.trim() || undefined,
+        page: pageFilter !== 'all' ? pageFilter : undefined,
+        source: sourceFilter !== 'all' ? sourceFilter : undefined,
+      });
+      setVisits(data);
+    } catch {
+      setVisits([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [search, pageFilter, sourceFilter]);
 
   useEffect(() => {
-    load();
-    const onStorage = (e) => {
-      if (e.key === 'axiora_visits') load();
-    };
-    window.addEventListener('storage', onStorage);
-    const interval = setInterval(load, 8000);
-    return () => {
-      window.removeEventListener('storage', onStorage);
-      clearInterval(interval);
-    };
-  }, [load]);
+    const timer = setTimeout(load, search ? 300 : 0);
+    return () => clearTimeout(timer);
+  }, [load, search]);
 
   const stats = useMemo(() => getVisitStats(visits), [visits]);
   const pages = useMemo(() => [...new Set(visits.map((v) => v.page))], [visits]);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return visits.filter((v) => {
-      if (pageFilter !== 'all' && v.page !== pageFilter) return false;
-      if (sourceFilter !== 'all' && v.referrerType !== sourceFilter) return false;
-      if (!q) return true;
-      return [v.ip, v.page, v.referrer, v.city, v.country, v.device, v.browser]
-        .some((f) => String(f).toLowerCase().includes(q));
-    });
-  }, [visits, search, pageFilter, sourceFilter]);
-
-  const handleClear = () => {
+  const handleClear = async () => {
     if (window.confirm("Barcha tashrif yozuvlarini o'chirasizmi?")) {
-      clearVisits();
+      await api.clearVisits();
       setVisits([]);
     }
   };
@@ -186,14 +178,20 @@ export default function VisitorsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                    Yuklanmoqda...
+                  </td>
+                </tr>
+              ) : visits.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                     Tashriflar topilmadi. Saytga kirib ko&apos;ring — yozuvlar shu yerda paydo bo&apos;ladi.
                   </td>
                 </tr>
               ) : (
-                filtered.map((v) => (
+                visits.map((v) => (
                   <tr key={v.id} className="border-b border-border/30 hover:bg-secondary/20">
                     <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">{formatVisitTime(v.timestamp)}</td>
                     <td className="px-4 py-3">
@@ -227,15 +225,15 @@ export default function VisitorsPage() {
             </tbody>
           </table>
         </div>
-        {filtered.length > 0 && (
+        {visits.length > 0 && (
           <div className="px-4 py-3 border-t border-border/40 text-xs text-muted-foreground font-body">
-            {filtered.length} ta yozuv ko&apos;rsatilmoqda (jami {visits.length})
+            {visits.length} ta yozuv ko&apos;rsatilmoqda
           </div>
         )}
       </div>
 
       <p className="text-[10px] text-muted-foreground/60 font-body text-center">
-        IP va joylashuv brauzer orqali aniqlanadi. Haqiqiy analytics uchun server-side yechim tavsiya etiladi.
+        Tashriflar server bazasida saqlanadi.
       </p>
     </div>
   );

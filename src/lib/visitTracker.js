@@ -1,5 +1,4 @@
-const STORAGE_KEY = 'axiora_visits';
-const MAX_VISITS = 500;
+import { api } from '@/api/client';
 
 const SECTION_LABELS = {
   '#hero': 'Bosh sahifa (Hero)',
@@ -58,42 +57,6 @@ function parseBrowser(ua) {
   return 'Boshqa';
 }
 
-export function getVisits() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveVisits(visits) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(visits.slice(0, MAX_VISITS)));
-}
-
-export function clearVisits() {
-  localStorage.removeItem(STORAGE_KEY);
-}
-
-export function seedDemoVisits() {
-  if (getVisits().length > 0) return;
-  const now = Date.now();
-  const demo = [
-    { ip: '185.139.22.41', page: "Bosh sahifa (Hero)", path: '/', hash: '#hero', referrer: "To'g'ridan-to'g'ri", referrerType: 'direct', device: 'Mobil', browser: 'Chrome', country: "O'zbekiston", city: 'Toshkent', ua: 'demo' },
-    { ip: '91.196.88.12', page: 'Portfolio', path: '/', hash: '#portfolio', referrer: 'Google qidiruv', referrerType: 'search', device: 'Kompyuter', browser: 'Chrome', country: "O'zbekiston", city: 'Samarqand', ua: 'demo' },
-    { ip: '178.128.44.90', page: 'Aloqa', path: '/', hash: '#contact', referrer: 'Instagram', referrerType: 'social', device: 'Mobil', browser: 'Safari', country: 'Rossiya', city: 'Moskva', ua: 'demo' },
-    { ip: '185.139.22.41', page: 'Jamoa', path: '/', hash: '#team', referrer: "To'g'ridan-to'g'ri", referrerType: 'direct', device: 'Mobil', browser: 'Chrome', country: "O'zbekiston", city: 'Toshkent', ua: 'demo' },
-    { ip: '203.0.113.8', page: 'Kirish sahifasi', path: '/login', hash: '', referrer: 'Telegram', referrerType: 'social', device: 'Mobil', browser: 'Chrome', country: 'Qozog\'iston', city: 'Olmaota', ua: 'demo' },
-    { ip: '198.51.100.22', page: 'Biz haqimizda', path: '/', hash: '#about', referrer: 'LinkedIn', referrerType: 'social', device: 'Kompyuter', browser: 'Firefox', country: 'AQSH', city: 'New York', ua: 'demo' },
-  ];
-  const visits = demo.map((row, i) => ({
-    id: `demo-${i}`,
-    ...row,
-    timestamp: new Date(now - i * 47 * 60 * 1000).toISOString(),
-  }));
-  saveVisits(visits);
-}
-
 async function fetchGeo() {
   try {
     const res = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(4000) });
@@ -117,6 +80,8 @@ async function fetchGeo() {
 }
 
 let cachedGeo = null;
+let lastVisitKey = '';
+let lastVisitTime = 0;
 
 export async function recordVisit({ path, hash = '' }) {
   if (typeof window === 'undefined') return;
@@ -130,32 +95,30 @@ export async function recordVisit({ path, hash = '' }) {
     cachedGeo = await fetchGeo();
   }
 
-  const visit = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    ip: cachedGeo.ip,
-    country: cachedGeo.country,
-    city: cachedGeo.city,
-    page,
-    path,
-    hash: hash || '',
-    referrer: ref.label,
-    referrerType: ref.type,
-    device: parseDevice(ua),
-    browser: parseBrowser(ua),
-    ua,
-    timestamp: new Date().toISOString(),
-  };
+  const dupKey = `${cachedGeo.ip}|${path}|${hash}|${ref.label}`;
+  const sameMinute = Date.now() - lastVisitTime < 60_000;
+  if (dupKey === lastVisitKey && sameMinute) return;
 
-  const visits = getVisits();
-  const dupKey = `${visit.ip}|${visit.path}|${visit.hash}|${visit.referrer}`;
-  const last = visits[0];
-  if (last) {
-    const lastKey = `${last.ip}|${last.path}|${last.hash}|${last.referrer}`;
-    const sameMinute = Date.now() - new Date(last.timestamp).getTime() < 60_000;
-    if (dupKey === lastKey && sameMinute) return;
+  lastVisitKey = dupKey;
+  lastVisitTime = Date.now();
+
+  try {
+    await api.recordVisit({
+      page,
+      path,
+      hash: hash || '',
+      referrer: ref.label,
+      referrer_type: ref.type,
+      device: parseDevice(ua),
+      browser: parseBrowser(ua),
+      ua,
+      ip: cachedGeo.ip,
+      country: cachedGeo.country,
+      city: cachedGeo.city,
+    });
+  } catch {
+    // Tashrif yozuvi muvaffaqiyatsiz bo'lsa, foydalanuvchiga ko'rsatilmaydi
   }
-
-  saveVisits([visit, ...visits]);
 }
 
 export function formatVisitTime(iso) {
@@ -170,7 +133,7 @@ export function formatVisitTime(iso) {
 
 export function getVisitStats(visits) {
   const today = new Date().toDateString();
-  const todayVisits = visits.filter((v) => new Date(v.timestamp).toDateString() === today);
+  const todayVisits = visits.filter((v) => new Date(v.timestamp || v.created_at).toDateString() === today);
   const uniqueIps = new Set(visits.map((v) => v.ip)).size;
 
   const pageCounts = {};

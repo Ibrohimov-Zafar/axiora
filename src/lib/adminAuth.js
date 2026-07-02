@@ -1,13 +1,30 @@
-const KEY = 'axiora_admin_auth';
+import { api, setToken, clearToken } from '@/api/client';
 
-export const adminLogin = (username, password) => {
-  if (username === 'admin1' && password === 'admin123') {
-    localStorage.setItem(KEY, '1');
+const LEGACY_KEY = 'axiora_admin_auth';
+
+export async function adminLogin(username, password) {
+  const data = await api.login(username, password);
+  setToken(data.token);
+  localStorage.removeItem(LEGACY_KEY);
+  return data;
+}
+
+export function adminLogout() {
+  clearToken();
+  localStorage.removeItem(LEGACY_KEY);
+}
+
+export function isAdminLoggedIn() {
+  return Boolean(localStorage.getItem('axiora_token'));
+}
+
+export async function verifyAdminSession() {
+  if (!isAdminLoggedIn()) return false;
+  try {
+    await api.me();
     return true;
+  } catch {
+    adminLogout();
+    return false;
   }
-  return false;
-};
-
-export const adminLogout = () => localStorage.removeItem(KEY);
-
-export const isAdminLoggedIn = () => localStorage.getItem(KEY) === '1';
+}

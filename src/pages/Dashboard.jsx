@@ -3,15 +3,17 @@ import { useNavigate, useLocation, Outlet, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, FolderOpen, Users, MessageSquare, Globe2,
-  Settings, LogOut, Menu, Sun, Moon, Bell, ChevronLeft,
+  Settings, LogOut, Menu, Sun, Moon, Bell, ChevronLeft, Video,
 } from 'lucide-react';
-import { adminLogout, isAdminLoggedIn } from '@/lib/adminAuth';
+import { adminLogout, verifyAdminSession } from '@/lib/adminAuth';
+import { api } from '@/api/client';
 
 const NAV = [
   { to: '/dashboard', label: "Umumiy ko'rinish", icon: LayoutDashboard, exact: true },
   { to: '/dashboard/projects', label: 'Loyihalar', icon: FolderOpen },
   { to: '/dashboard/team', label: 'Jamoa', icon: Users },
-  { to: '/dashboard/messages', label: 'Xabarlar', icon: MessageSquare, badge: 3 },
+  { to: '/dashboard/messages', label: 'Xabarlar', icon: MessageSquare, badgeKey: 'messages' },
+  { to: '/dashboard/shorts', label: 'Video Shorts', icon: Video },
   { to: '/dashboard/visitors', label: 'Tashriflar', icon: Globe2 },
   { to: '/dashboard/settings', label: 'Sozlamalar', icon: Settings },
 ];
@@ -21,6 +23,7 @@ export default function Dashboard() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [dark, setDark] = useState(() => {
     const saved = localStorage.getItem('axiora_theme');
     if (saved === 'light') return false;
@@ -28,8 +31,17 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    if (!isAdminLoggedIn()) navigate('/login', { replace: true });
+    verifyAdminSession().then((ok) => {
+      if (!ok) navigate('/login', { replace: true });
+    });
   }, [navigate]);
+
+  useEffect(() => {
+    if (!location.pathname.startsWith('/dashboard')) return;
+    api.getMessages({ unread: 'true' })
+      .then((msgs) => setUnreadCount(msgs.length))
+      .catch(() => setUnreadCount(0));
+  }, [location.pathname]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -95,9 +107,9 @@ export default function Dashboard() {
             >
               <item.icon className="w-4.5 h-4.5 shrink-0" style={{ width: 18, height: 18 }} />
               {!collapsed && <span className="flex-1">{item.label}</span>}
-              {!collapsed && item.badge && (
+              {!collapsed && item.badgeKey === 'messages' && unreadCount > 0 && (
                 <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'}`}>
-                  {item.badge}
+                  {unreadCount}
                 </span>
               )}
               {collapsed && (

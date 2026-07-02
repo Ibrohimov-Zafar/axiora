@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useI18n } from '@/lib/i18n';
+import { useQuery } from '@tanstack/react-query';
 import {
-  MEMBER_PHOTOS,
-  MEMBER_VIDEOS,
   getCarouselVideoUrl,
   getFullVideoUrl,
+  getYoutubeEmbedId,
 } from '@/lib/teamMedia';
+import { api } from '@/api/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 const AUTO_SCROLL_SPEED = 1.1;
-const DRAG_THRESHOLD = 6;
+const DRAG_THRESHOLD = 8;
 
 function ShortsVideoCard({ src, poster, member, onClick }) {
   const containerRef = useRef(null);
@@ -58,15 +58,22 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
   return (
     <button
       type="button"
-      onClick={onClick}
+      data-shorts-card
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
       className="group relative w-[180px] shrink-0 overflow-hidden rounded-2xl border border-white/10 text-left shadow-lg transition-transform duration-300 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:w-[200px]"
     >
       <div ref={containerRef} className="relative aspect-[9/16] w-full bg-secondary/30">
-        <img
-          src={poster}
-          alt=""
-          className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-300 ${isReady ? 'opacity-0' : 'opacity-100'}`}
-        />
+        {poster && (
+          <img
+            src={poster}
+            alt=""
+            className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-300 ${isReady ? 'opacity-0' : 'opacity-100'}`}
+          />
+        )}
         {shouldLoad && (
           <video
             ref={videoRef}
@@ -93,8 +100,13 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
 }
 
 export default function VideoShorts() {
-  const { t } = useI18n();
   const [active, setActive] = useState(null);
+
+  const { data: shorts = [], isLoading } = useQuery({
+    queryKey: ['shorts'],
+    queryFn: () => api.getShorts(),
+    staleTime: 60_000,
+  });
 
   const trackRef = useRef(null);
   const isDragging = useRef(false);
@@ -102,15 +114,16 @@ export default function VideoShorts() {
   const dragStartX = useRef(0);
   const scrollStart = useRef(0);
 
-  const items = t.team.members.map((member, i) => ({
-    member,
-    idx: i,
-    src: getCarouselVideoUrl(MEMBER_VIDEOS[i]),
-    poster: MEMBER_PHOTOS[i],
-    fullSrc: getFullVideoUrl(MEMBER_VIDEOS[i]),
+  const items = shorts.map((s) => ({
+    id: s.id,
+    member: { name: s.name, role: s.role },
+    src: getCarouselVideoUrl(s.video_url),
+    poster: s.poster_url,
+    fullSrc: getFullVideoUrl(s.video_url),
+    youtubeId: getYoutubeEmbedId(s.youtube_url),
   }));
 
-  const marqueeItems = [...items, ...items];
+  const marqueeItems = items.length > 0 ? [...items, ...items] : [];
 
   const normalizeScroll = useCallback((el) => {
     const half = el.scrollWidth / 2;
@@ -121,7 +134,7 @@ export default function VideoShorts() {
 
   useEffect(() => {
     const track = trackRef.current;
-    if (!track) return;
+    if (!track || items.length === 0) return;
 
     let rafId;
     const tick = () => {
@@ -134,9 +147,11 @@ export default function VideoShorts() {
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [normalizeScroll]);
+  }, [normalizeScroll, items.length]);
 
   const handlePointerDown = (e) => {
+    if (e.target.closest('[data-shorts-card]')) return;
+
     const track = trackRef.current;
     if (!track) return;
 
@@ -165,13 +180,32 @@ export default function VideoShorts() {
     if (!track) return;
 
     isDragging.current = false;
-    track.releasePointerCapture(e.pointerId);
+    if (track.hasPointerCapture(e.pointerId)) {
+      track.releasePointerCapture(e.pointerId);
+    }
+    setTimeout(() => {
+      dragMoved.current = false;
+    }, 0);
   };
 
   const handleCardClick = (item) => {
     if (dragMoved.current) return;
     setActive(item);
   };
+
+  if (isLoading) {
+    return (
+      <section className="relative overflow-hidden py-8 md:py-12">
+        <div className="mx-auto max-w-7xl px-6 text-center text-sm text-muted-foreground font-body">
+          Videolar yuklanmoqda...
+        </div>
+      </section>
+    );
+  }
+
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <section className="relative overflow-hidden py-8 md:py-12">
@@ -183,7 +217,7 @@ export default function VideoShorts() {
       >
         <div
           ref={trackRef}
-          className="flex cursor-grab gap-3 overflow-x-auto active:cursor-grabbing [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-4"
+          className="flex cursor-grab gap-3 overflow-x-auto active:cursor-grabbing [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-4 touch-pan-x"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -191,7 +225,7 @@ export default function VideoShorts() {
         >
           {marqueeItems.map((item, i) => (
             <ShortsVideoCard
-              key={`${item.idx}-${i}`}
+              key={`${item.id}-${i}`}
               src={item.src}
               poster={item.poster}
               member={item.member}
@@ -224,16 +258,26 @@ export default function VideoShorts() {
               >
                 <X className="h-5 w-5 text-white" />
               </button>
-              <video
-                key={`shorts-modal-${active.idx}`}
-                src={active.fullSrc}
-                poster={active.poster}
-                className="aspect-[9/16] w-full bg-black object-contain"
-                controls
-                autoPlay
-                playsInline
-                preload="auto"
-              />
+              {active.youtubeId ? (
+                <iframe
+                  title={active.member.name}
+                  src={`https://www.youtube.com/embed/${active.youtubeId}?autoplay=1&playsinline=1`}
+                  className="aspect-[9/16] w-full bg-black"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  key={`shorts-modal-${active.id}`}
+                  src={active.fullSrc}
+                  poster={active.poster}
+                  className="aspect-[9/16] w-full bg-black object-contain"
+                  controls
+                  autoPlay
+                  playsInline
+                  preload="auto"
+                />
+              )}
               <div className="border-t border-white/10 p-4">
                 <span className="font-mono text-xs font-bold text-primary">{active.member.role}</span>
                 <p className="mt-1 font-heading text-base font-semibold text-white">{active.member.name}</p>

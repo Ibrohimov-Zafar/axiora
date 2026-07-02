@@ -1,32 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { FolderOpen, Users, MessageSquare, TrendingUp, ArrowUpRight } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip
 } from 'recharts';
-
-const stats = [
-  { label: 'Jami loyihalar', value: '25', change: '+3', icon: FolderOpen, color: 'text-primary', bg: 'bg-primary/10' },
-  { label: 'Jamoa a\'zolari', value: '7', change: '+1', icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-  { label: 'Yangi xabarlar', value: '12', change: '+5', icon: MessageSquare, color: 'text-green-500', bg: 'bg-green-500/10' },
-  { label: 'O\'sish', value: '300%', change: '+42%', icon: TrendingUp, color: 'text-accent', bg: 'bg-accent/10' },
-];
-
-const chartData = [
-  { month: 'Yan', loyihalar: 3, mijozlar: 2 },
-  { month: 'Fev', loyihalar: 5, mijozlar: 4 },
-  { month: 'Mar', loyihalar: 4, mijozlar: 5 },
-  { month: 'Apr', loyihalar: 8, mijozlar: 6 },
-  { month: 'May', loyihalar: 7, mijozlar: 8 },
-  { month: 'Iyn', loyihalar: 10, mijozlar: 9 },
-  { month: 'Iyl', loyihalar: 12, mijozlar: 11 },
-];
-
-const recentProjects = [
-  { name: 'Bulutli SaaS Platforma', cat: 'SaaS', result: '+220% samaradorlik', status: 'Tugallangan' },
-  { name: 'Onlayn Ta\'lim Markazi', cat: 'EdTech', result: '60K+ faol o\'quvchi', status: 'Jarayonda' },
-  { name: 'Marketplace Tizimi', cat: 'E-commerce', result: '$2M+ aylanma', status: 'Tugallangan' },
-];
+import { api } from '@/api/client';
 
 const CHART_HEIGHT = 220;
 const CHART_PRIMARY = '#a855f7';
@@ -46,7 +25,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-function GrowthChart() {
+function GrowthChart({ chartData }) {
   const containerRef = useRef(null);
   const [width, setWidth] = useState(0);
 
@@ -114,6 +93,29 @@ function GrowthChart() {
 }
 
 export default function Overview() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['overview'],
+    queryFn: () => api.getOverviewStats(),
+  });
+
+  const stats = data ? [
+    { label: 'Jami loyihalar', value: String(data.stats.projects), change: '', icon: FolderOpen, color: 'text-primary', bg: 'bg-primary/10' },
+    { label: 'Jamoa a\'zolari', value: String(data.stats.team), change: '', icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    { label: 'Yangi xabarlar', value: String(data.stats.unreadMessages), change: '', icon: MessageSquare, color: 'text-green-500', bg: 'bg-green-500/10' },
+    { label: 'Tashriflar', value: String(data.stats.visits), change: `+${data.stats.todayVisits} bugun`, icon: TrendingUp, color: 'text-accent', bg: 'bg-accent/10' },
+  ] : [];
+
+  const chartData = data?.chartData || [];
+  const recentProjects = data?.recentProjects || [];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20 text-muted-foreground font-body text-sm">
+        Yuklanmoqda...
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 w-full max-w-full overflow-x-hidden">
       <div>
@@ -135,7 +137,9 @@ export default function Overview() {
             <div className="font-heading font-bold text-2xl text-foreground">{s.value}</div>
             <div className="flex items-center justify-between mt-0.5 gap-1">
               <span className="text-xs text-muted-foreground font-body leading-tight">{s.label}</span>
-              <span className="text-[10px] font-medium text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full shrink-0">{s.change}</span>
+              {s.change && (
+                <span className="text-[10px] font-medium text-green-600 bg-green-500/10 px-1.5 py-0.5 rounded-full shrink-0">{s.change}</span>
+              )}
             </div>
           </div>
         ))}
@@ -147,7 +151,7 @@ export default function Overview() {
             <h3 className="font-heading font-semibold text-foreground">O&apos;sish grafigi</h3>
             <p className="text-xs text-muted-foreground font-body mt-0.5">Loyihalar va mijozlar dinamikasi</p>
           </div>
-          <GrowthChart />
+          <GrowthChart chartData={chartData} />
         </div>
 
         <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-4 sm:p-6 overflow-hidden">

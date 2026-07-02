@@ -6,23 +6,39 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Phone, Mail, MapPin, Send, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { api } from '@/api/client';
 
 export default function Contact() {
   const { t } = useI18n();
   const [form, setForm] = useState({ name: '', phone: '+998 ', company: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.phone || !form.message) {
       return;
     }
-    setSent(true);
-    toast.success(t.contact.success);
-    setTimeout(() => {
-      setSent(false);
-      setForm({ name: '', phone: '+998 ', company: '', message: '' });
-    }, 3000);
+
+    setLoading(true);
+    try {
+      await api.submitContact({
+        name: form.name,
+        phone: form.phone,
+        company: form.company,
+        message: form.message,
+      });
+      setSent(true);
+      toast.success(t.contact.success);
+      setTimeout(() => {
+        setSent(false);
+        setForm({ name: '', phone: '+998 ', company: '', message: '' });
+      }, 3000);
+    } catch (err) {
+      toast.error(err.data?.error || 'Xabar yuborilmadi. Qayta urinib ko\'ring.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,7 +56,6 @@ export default function Contact() {
         </motion.div>
 
         <div className="grid lg:grid-cols-5 gap-12 max-w-5xl mx-auto">
-          {/* Contact info */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -64,7 +79,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <span className="text-xs text-muted-foreground/60 font-heading tracking-wider block">{t.contact.email_label}</span>
-                  <span className="text-foreground font-body">info@axiora.uz</span>
+                  <span className="text-foreground font-body">info@axiora-team.com</span>
                 </div>
               </div>
 
@@ -84,7 +99,6 @@ export default function Contact() {
             </div>
           </motion.div>
 
-          {/* Form */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -131,7 +145,7 @@ export default function Contact() {
               </div>
               <Button
                 type="submit"
-                disabled={sent}
+                disabled={sent || loading}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-body text-base h-12 rounded-full shadow-lg shadow-primary/25 group"
               >
                 {sent ? (
