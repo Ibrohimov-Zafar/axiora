@@ -22,9 +22,10 @@ function App() {
     <I18nProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
+          <VisitTracker />
           <Routes>
-            <Route path="/" element={<><VisitTracker /><Home /></>} />
-            <Route path="/login" element={<><VisitTracker /><Login /></>} />
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />}>
               <Route index element={<Overview />} />
               <Route path="projects" element={<Projects />} />

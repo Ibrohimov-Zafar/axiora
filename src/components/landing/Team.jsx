@@ -1,87 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import { useI18n } from '@/lib/i18n';
-import { api } from '@/api/client';
 import { MEMBER_PHOTOS, MEMBER_VIDEOS, getFullVideoUrl } from '@/lib/teamMedia';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Play, Linkedin, Twitter } from 'lucide-react';
-
-const PYRAMID_PATTERN = [1, 2, 3];
-
-function toPyramidRows(items) {
-  const rows = [];
-  let index = 0;
-  let patternIndex = 0;
-
-  while (index < items.length) {
-    const size = PYRAMID_PATTERN[patternIndex % PYRAMID_PATTERN.length];
-    rows.push(items.slice(index, index + size));
-    index += size;
-    patternIndex += 1;
-  }
-
-  return rows;
-}
-
-function TeamCard({ member, index, onClick, detailLabel }) {
-  const photo = member.photo_url || MEMBER_PHOTOS[index] || MEMBER_PHOTOS[0];
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.07 }}
-      onClick={() => onClick(member, index)}
-      className="group relative w-full max-w-[200px] cursor-pointer sm:max-w-[220px]"
-    >
-      <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-sm backdrop-blur-md transition-all duration-500 hover:border-primary/40 hover:bg-white/15 dark:border-border/30 dark:bg-white/5 dark:hover:bg-white/8">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-        <div className="relative aspect-[3/4] overflow-hidden">
-          <img
-            src={photo}
-            alt={member.name}
-            className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/80 shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 sm:h-12 sm:w-12">
-              <Play className="ml-0.5 h-4 w-4 text-white sm:h-5 sm:w-5" />
-            </div>
-          </div>
-        </div>
-
-        <div className="relative p-3 sm:p-4">
-          <span className="font-mono text-xs font-semibold text-primary">{member.role}</span>
-          <h3 className="mt-0.5 font-heading text-sm font-semibold text-foreground">{member.name}</h3>
-          <p className="mt-1 line-clamp-2 font-body text-xs leading-relaxed text-muted-foreground">
-            {member.desc || member.description}
-          </p>
-          <div className="mt-3 flex items-center justify-between">
-            <span className="font-body text-xs text-primary/70 transition-colors group-hover:text-primary">
-              {detailLabel} →
-            </span>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
 
 export default function Team() {
   const { t } = useI18n();
   const [selected, setSelected] = useState(null);
   const [videoPlaying, setVideoPlaying] = useState(false);
-
-  const { data: members = [] } = useQuery({
-    queryKey: ['team-public'],
-    queryFn: () => api.getTeamPublic(),
-    staleTime: 60_000,
-  });
-
-  const pyramidRows = useMemo(() => toPyramidRows(members), [members]);
 
   const openModal = (member, idx, playVideo = false) => {
     setSelected({ ...member, idx });
@@ -92,8 +18,6 @@ export default function Team() {
     setSelected(null);
     setVideoPlaying(false);
   };
-
-  if (members.length === 0) return null;
 
   return (
     <section id="team" className="relative py-16 md:py-28">
@@ -109,28 +33,48 @@ export default function Team() {
           <h2 className="mt-4 font-heading text-3xl font-bold text-foreground md:text-4xl">{t.team.title}</h2>
         </motion.div>
 
-        <div className="flex flex-col items-center gap-5 md:gap-7">
-          {pyramidRows.map((row, rowIdx) => (
-            <div
-              key={rowIdx}
-              className="flex flex-wrap items-stretch justify-center gap-3 sm:gap-5"
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+          {t.team.members.map((member, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.07 }}
+              onClick={() => openModal(member, i)}
+              className="group relative cursor-pointer"
             >
-              {row.map((member, colIdx) => {
-                const globalIndex = pyramidRows
-                  .slice(0, rowIdx)
-                  .reduce((sum, r) => sum + r.length, 0) + colIdx;
+              <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-sm backdrop-blur-md transition-all duration-500 hover:border-primary/40 hover:bg-white/15 dark:border-border/30 dark:bg-white/5 dark:hover:bg-white/8">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-                return (
-                  <TeamCard
-                    key={member.id}
-                    member={member}
-                    index={globalIndex}
-                    onClick={openModal}
-                    detailLabel={t.team.detail}
+                <div className="relative aspect-[3/4] overflow-hidden">
+                  <img
+                    src={MEMBER_PHOTOS[i]}
+                    alt={member.name}
+                    className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   />
-                );
-              })}
-            </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/80 shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 sm:h-12 sm:w-12">
+                      <Play className="ml-0.5 h-4 w-4 text-white sm:h-5 sm:w-5" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative p-3 sm:p-4">
+                  <span className="font-mono text-xs font-semibold text-primary">{member.role}</span>
+                  <h3 className="mt-0.5 font-heading text-sm font-semibold text-foreground">{member.name}</h3>
+                  <p className="mt-1 line-clamp-2 font-body text-xs leading-relaxed text-muted-foreground">{member.desc}</p>
+
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="font-body text-xs text-primary/70 transition-colors group-hover:text-primary">
+                      {t.team.detail} →
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -176,7 +120,7 @@ export default function Team() {
                 ) : (
                   <>
                     <img
-                      src={selected.photo_url || MEMBER_PHOTOS[selected.idx]}
+                      src={MEMBER_PHOTOS[selected.idx]}
                       alt={selected.name}
                       className="h-full w-full object-cover object-top"
                     />
@@ -198,31 +142,15 @@ export default function Team() {
                   <span className="font-mono text-xs font-bold tracking-wider text-primary">{selected.role}</span>
                   <h3 className="mt-1 font-heading text-lg font-bold text-foreground sm:text-xl">{selected.name}</h3>
                 </div>
-                <p className="font-body text-sm leading-relaxed text-muted-foreground">
-                  {selected.desc || selected.description}
-                </p>
+                <p className="font-body text-sm leading-relaxed text-muted-foreground">{selected.desc}</p>
 
                 <div className="flex items-center gap-2 pt-1">
-                  {selected.linkedin && (
-                    <a
-                      href={selected.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-xl bg-primary/10 p-2.5 transition-colors hover:bg-primary/20"
-                    >
-                      <Linkedin className="h-4 w-4 text-primary" />
-                    </a>
-                  )}
-                  {selected.twitter && (
-                    <a
-                      href={selected.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-xl bg-primary/10 p-2.5 transition-colors hover:bg-primary/20"
-                    >
-                      <Twitter className="h-4 w-4 text-primary" />
-                    </a>
-                  )}
+                  <button className="rounded-xl bg-primary/10 p-2.5 transition-colors hover:bg-primary/20">
+                    <Linkedin className="h-4 w-4 text-primary" />
+                  </button>
+                  <button className="rounded-xl bg-primary/10 p-2.5 transition-colors hover:bg-primary/20">
+                    <Twitter className="h-4 w-4 text-primary" />
+                  </button>
                   <button
                     onClick={() => setVideoPlaying(true)}
                     className="ml-auto flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-body text-sm text-primary-foreground transition-colors hover:bg-primary/90"

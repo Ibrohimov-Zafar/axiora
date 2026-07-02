@@ -16,14 +16,14 @@ function getClientIp(req) {
 router.post('/', rateLimit({ max: 30 }), (req, res) => {
   const {
     page, path, hash, referrer, referrer_type,
-    device, browser, ua, country, city, ip,
+    device, browser, ua, country, city,
   } = req.body || {};
 
   if (!page || !path) {
     return res.status(400).json({ error: 'page va path majburiy' });
   }
 
-  const clientIp = ip || getClientIp(req);
+  const clientIp = getClientIp(req);
 
   const insert = db.prepare(`
     INSERT INTO visits (ip, country, city, page, path, hash, referrer, referrer_type, device, browser, ua)

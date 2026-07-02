@@ -82,6 +82,17 @@ async function fetchGeo() {
 let cachedGeo = null;
 let lastVisitKey = '';
 let lastVisitTime = 0;
+let geoFetchStarted = false;
+
+function startGeoFetch() {
+  if (geoFetchStarted || cachedGeo) return;
+  geoFetchStarted = true;
+  fetchGeo()
+    .then((geo) => { cachedGeo = geo; })
+    .catch(() => {
+      cachedGeo = { country: "Noma'lum", city: "Noma'lum" };
+    });
+}
 
 export async function recordVisit({ path, hash = '' }) {
   if (typeof window === 'undefined') return;
@@ -91,16 +102,14 @@ export async function recordVisit({ path, hash = '' }) {
   const ref = parseReferrer(document.referrer);
   const page = getPageLabel(path, hash);
 
-  if (!cachedGeo) {
-    cachedGeo = await fetchGeo();
-  }
-
-  const dupKey = `${cachedGeo.ip}|${path}|${hash}|${ref.label}`;
+  const dupKey = `${path}|${hash}|${ref.label}`;
   const sameMinute = Date.now() - lastVisitTime < 60_000;
   if (dupKey === lastVisitKey && sameMinute) return;
 
   lastVisitKey = dupKey;
   lastVisitTime = Date.now();
+
+  startGeoFetch();
 
   try {
     await api.recordVisit({
@@ -112,9 +121,8 @@ export async function recordVisit({ path, hash = '' }) {
       device: parseDevice(ua),
       browser: parseBrowser(ua),
       ua,
-      ip: cachedGeo.ip,
-      country: cachedGeo.country,
-      city: cachedGeo.city,
+      country: cachedGeo?.country,
+      city: cachedGeo?.city,
     });
   } catch {
     // Tashrif yozuvi muvaffaqiyatsiz bo'lsa, foydalanuvchiga ko'rsatilmaydi
