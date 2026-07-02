@@ -102,10 +102,11 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
 export default function VideoShorts() {
   const [active, setActive] = useState(null);
 
-  const { data: shorts = [], isLoading } = useQuery({
+  const { data: shorts = [], isLoading, isError } = useQuery({
     queryKey: ['shorts'],
     queryFn: () => api.getShorts(),
     staleTime: 60_000,
+    retry: 1,
   });
 
   const trackRef = useRef(null);
@@ -114,7 +115,7 @@ export default function VideoShorts() {
   const dragStartX = useRef(0);
   const scrollStart = useRef(0);
 
-  const items = shorts.map((s) => ({
+  const items = (shorts ?? []).map((s) => ({
     id: s.id,
     member: { name: s.name, role: s.role },
     src: getCarouselVideoUrl(s.video_url),
@@ -203,7 +204,7 @@ export default function VideoShorts() {
     );
   }
 
-  if (items.length === 0) {
+  if (isError || items.length === 0) {
     return null;
   }
 

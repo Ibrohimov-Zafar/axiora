@@ -39,11 +39,15 @@ app.use('/api/visits', visitsRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/shorts', shortsRoutes);
 
+// Topilmagan API yo'llari
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: `API topilmadi: ${req.method} ${req.originalUrl}` });
+});
+
 const distPath = path.join(__dirname, '..', 'dist');
 app.use(express.static(distPath));
 
 app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) return next();
   res.sendFile(path.join(distPath, 'index.html'), (err) => {
     if (err) next();
   });

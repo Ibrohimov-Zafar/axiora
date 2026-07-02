@@ -28,5 +28,4 @@ jobs:
             cd /var/axiora
             git fetch origin
             git reset --hard origin/main
-            chmod +x deploy/deploy.sh
-            ./deploy/deploy.sh
+            bash deploy/deploy.sh

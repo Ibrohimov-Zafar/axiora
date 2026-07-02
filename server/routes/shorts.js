@@ -20,24 +20,29 @@ function formatShort(row) {
 }
 
 router.get('/', (req, res) => {
-  let showAll = false;
-  const header = req.headers.authorization;
-  if (header?.startsWith('Bearer ')) {
-    try {
-      verifyToken(header.slice(7));
-      showAll = true;
-    } catch {
-      // noto'g'ri token — faqat faol videolar
+  try {
+    let showAll = false;
+    const header = req.headers.authorization;
+    if (header?.startsWith('Bearer ')) {
+      try {
+        verifyToken(header.slice(7));
+        showAll = true;
+      } catch {
+        // noto'g'ri token — faqat faol videolar
+      }
     }
-  }
 
-  let sql = 'SELECT * FROM video_shorts';
-  if (!showAll) {
-    sql += ' WHERE is_active = 1';
+    let sql = 'SELECT * FROM video_shorts';
+    if (!showAll) {
+      sql += ' WHERE is_active = 1';
+    }
+    sql += ' ORDER BY sort_order ASC, id ASC';
+    const rows = db.prepare(sql).all();
+    res.json(rows.map(formatShort));
+  } catch (err) {
+    console.error('shorts GET xato:', err);
+    res.json([]);
   }
-  sql += ' ORDER BY sort_order ASC, id ASC';
-  const rows = db.prepare(sql).all();
-  res.json(rows.map(formatShort));
 });
 
 router.post('/', requireAuth, (req, res) => {
