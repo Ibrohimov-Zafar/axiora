@@ -88,14 +88,16 @@ export default function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
+          className="overflow-visible"
         >
           <h1 className="font-heading font-bold tracking-tight">
-            <span className="block text-[2.2rem] sm:text-5xl md:text-6xl lg:text-7xl text-foreground leading-[1.05]">
+            <span className="block text-[2.2rem] sm:text-5xl md:text-6xl lg:text-7xl text-foreground leading-snug sm:leading-normal mb-3 sm:mb-4">
               {t.hero.title1}
             </span>
-            <span className="block text-[2.2rem] sm:text-5xl md:text-6xl lg:text-7xl bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent leading-[1.05] mt-2">
-              {t.hero.title2}
-            </span>
+            <div className="text-[2.2rem] sm:text-5xl md:text-6xl lg:text-7xl text-primary leading-snug sm:leading-normal pb-2 mb-4 sm:mb-5 md:whitespace-nowrap">
+              <span className="block md:inline">{t.hero.title2Line1}</span>
+              <span className="block md:inline md:ml-[0.2em]">{t.hero.title2Line2}</span>
+            </div>
           </h1>
         </motion.div>
 

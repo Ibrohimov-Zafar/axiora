@@ -14,7 +14,8 @@ const translations = {
     hero: {
       badge: "Ish jarayonlaringizni optimallashtiring",
       title1: "Kuchli jamoa bilan",
-      title2: "Biznesingizni yuksaltiring",
+      title2Line1: "Biznesingizni",
+      title2Line2: "yuksaltiring",
       desc: "Axiora — g'oyalarni jonli biznesga aylantiruvchi studio. Biz texnologiya, strategiya va kreativlikni birlashtirib, global miqyosdagi yechimlar yaratamiz.",
       cta1: "Bog'lanish",
       cta2: "Batafsil ma'lumot",
@@ -197,7 +198,8 @@ const translations = {
     hero: {
       badge: "Optimize your workflows",
       title1: "With a powerful team",
-      title2: "Elevate your business",
+      title2Line1: "Elevate your",
+      title2Line2: "business",
       desc: "Axiora is a studio that turns ideas into living businesses. We combine technology, strategy, and creativity to build solutions at a global scale.",
       cta1: "Contact Us",
       cta2: "Learn More",
@@ -365,7 +367,8 @@ const translations = {
     hero: {
       badge: "Оптимизируйте рабочие процессы",
       title1: "С сильной командой",
-      title2: "Поднимите свой бизнес",
+      title2Line1: "Поднимите свой",
+      title2Line2: "бизнес",
       desc: "Axiora — студия, превращающая идеи в живой бизнес. Мы сочетаем технологии, стратегию и креативность для создания решений мирового масштаба.",
       cta1: "Связаться",
       cta2: "Подробнее",
