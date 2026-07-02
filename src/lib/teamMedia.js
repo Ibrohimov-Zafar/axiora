@@ -30,14 +30,14 @@ function applyCloudinaryVideoTransform(url, transform) {
   return `${prefix}${transform}/${suffix}`;
 }
 
-/** Kichik carousel kartalari uchun — past sifat, kichik o'lcham */
+/** Kichik carousel kartalari uchun — past sifat, kichik o'lcham, H.264 */
 export function getCarouselVideoUrl(url) {
-  return applyCloudinaryVideoTransform(url, 'q_auto:low,f_auto:video,w_400,c_fill');
+  return applyCloudinaryVideoTransform(url, 'vc_h264,f_mp4,q_auto:low,w_400,c_fill');
 }
 
-/** Modal uchun — to'liq sifat */
+/** Modal va player uchun — brauzer mos H.264 MP4 */
 export function getFullVideoUrl(url) {
-  return applyCloudinaryVideoTransform(url, 'q_auto,f_auto:video');
+  return applyCloudinaryVideoTransform(url, 'vc_h264,f_mp4,q_auto');
 }
 
 function applyCloudinaryImageTransform(url, transform) {

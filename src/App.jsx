@@ -31,7 +31,7 @@ function App() {
   return (
     <I18nProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <VisitTracker />
           <Suspense fallback={<PageLoader />}>
             <Routes>

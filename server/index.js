@@ -22,7 +22,10 @@ const app = express();
 app.set('trust proxy', 1);
 
 const corsOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean)
+  ? process.env.CORS_ORIGIN.split(',').flatMap((s) => {
+      const trimmed = s.trim();
+      return trimmed ? [trimmed] : [];
+    })
   : null;
 app.use(cors(corsOrigins ? { origin: corsOrigins } : undefined));
 app.use(express.json({ limit: '1mb' }));

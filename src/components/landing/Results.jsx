@@ -30,7 +30,7 @@ export default function Results() {
               className="relative group"
             >
               <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative p-5 sm:p-8 rounded-2xl border border-border/30 bg-card/50 backdrop-blur-sm text-center hover:border-primary/30 transition-all duration-500">
+              <div className="relative p-5 sm:p-8 rounded-2xl border border-border/30 bg-card/50 mobile-blur-sm text-center hover:border-primary/30 transition-all duration-500">
                 <span className="block font-mono font-bold text-3xl sm:text-4xl md:text-5xl text-primary tracking-tight">
                   {stat.value}
                 </span>

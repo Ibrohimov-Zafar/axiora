@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { useIsDark } from '@/hooks/use-is-dark';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ModalPortal } from '@/components/ui/modal-portal';
+import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, Play, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FlowFieldBackground from '@/components/ui/flow-field-background';
-import { getOptimizedImageUrl } from '@/lib/teamMedia';
+import { getOptimizedImageUrl, getFullVideoUrl } from '@/lib/teamMedia';
 
 const HERO_VIDEO_URL =
   'https://res.cloudinary.com/dgreqtwk6/video/upload/v1781431444/ahad_cnlu0q.mp4';
@@ -15,10 +17,32 @@ const HERO_VIDEO_POSTER_URL =
 export default function Hero() {
   const { t } = useI18n();
   const isDark = useIsDark();
+  const isMobile = useIsMobile();
   const [videoOpen, setVideoOpen] = useState(false);
+  const [canvasActive, setCanvasActive] = useState(true);
+  const heroRef = useRef(null);
+
+  useEffect(() => {
+    const el = heroRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setCanvasActive(entry.isIntersecting),
+      { rootMargin: '80px', threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const posterWidth = isMobile ? 480 : 800;
+  const closeVideo = useCallback(() => setVideoOpen(false), []);
 
   return (
-    <section id="hero" className="hero-surface relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-background pt-20">
+    <section
+      ref={heroRef}
+      id="hero"
+      className="hero-surface relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-background pt-20"
+    >
       <div aria-hidden className="pointer-events-none absolute inset-0 min-h-[100dvh]">
         {!isDark && (
           <FlowFieldBackground
@@ -27,6 +51,7 @@ export default function Hero() {
             trailOpacity={0.045}
             particleCount={820}
             speed={0.72}
+            active={canvasActive}
             className="opacity-65"
           />
         )}
@@ -37,6 +62,7 @@ export default function Hero() {
             trailOpacity={0.08}
             particleCount={640}
             speed={0.8}
+            active={canvasActive}
             className="opacity-75"
           />
         )}
@@ -51,7 +77,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/80 px-5 py-2.5 shadow-[0_16px_40px_rgba(124,58,237,0.10)] backdrop-blur-md dark:border-primary/25 dark:bg-primary/5 dark:shadow-none"
+          className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/80 px-5 py-2.5 shadow-[0_16px_40px_rgba(124,58,237,0.10)] mobile-blur-md dark:border-primary/25 dark:bg-primary/5 dark:shadow-none"
         >
           <Sparkles className="w-4 h-4 text-primary" />
           <span className="text-sm font-body text-primary font-medium">{t.hero.badge}</span>
@@ -99,7 +125,7 @@ export default function Hero() {
           <a href="#about">
             <Button
               variant="outline"
-              className="border-black/10 bg-white/75 text-foreground font-body text-sm sm:text-base px-6 py-4 sm:px-9 sm:py-6 rounded-full shadow-lg shadow-black/5 backdrop-blur-md hover:border-primary/40 hover:bg-primary/5 dark:border-border/40 dark:bg-white/5 dark:shadow-none transition-all duration-300"
+              className="border-black/10 bg-white/75 text-foreground font-body text-sm sm:text-base px-6 py-4 sm:px-9 sm:py-6 rounded-full shadow-lg shadow-black/5 mobile-blur-md hover:border-primary/40 hover:bg-primary/5 dark:border-border/40 dark:bg-white/5 dark:shadow-none transition-all duration-300"
             >
               {t.hero.cta2}
             </Button>
@@ -120,7 +146,7 @@ export default function Hero() {
           ].map((stat, i) => (
             <div
               key={i}
-              className="relative overflow-hidden rounded-xl border border-black/10 bg-white/70 px-2 sm:px-4 py-4 sm:py-5 text-center shadow-lg shadow-black/5 backdrop-blur-md transition-all duration-300 hover:border-primary/30 dark:border-border/30 dark:bg-white/5 dark:shadow-none"
+              className="relative overflow-hidden rounded-xl border border-black/10 bg-white/70 px-2 sm:px-4 py-4 sm:py-5 text-center shadow-lg shadow-black/5 mobile-blur-md transition-all duration-300 hover:border-primary/30 dark:border-border/30 dark:bg-white/5 dark:shadow-none"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent dark:from-primary/5" />
               <div className="relative">
@@ -138,13 +164,14 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="w-full max-w-3xl mt-4"
         >
-          <div className="relative overflow-hidden rounded-xl border border-black/10 bg-white/80 shadow-2xl shadow-black/10 backdrop-blur-md dark:border-border/30 dark:bg-white/[0.03] dark:shadow-primary/10">
+          <div className="relative overflow-hidden rounded-xl border border-black/10 bg-white/80 shadow-2xl shadow-black/10 mobile-blur-md dark:border-border/30 dark:bg-white/[0.03] dark:shadow-primary/10">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent pointer-events-none" />
             <div className="relative aspect-video bg-black">
               <img
-                src={getOptimizedImageUrl(HERO_VIDEO_POSTER_URL, 800)}
+                src={getOptimizedImageUrl(HERO_VIDEO_POSTER_URL, posterWidth)}
                 alt=""
                 loading="eager"
+                fetchPriority="high"
                 decoding="async"
                 className="absolute inset-0 h-full w-full object-cover"
               />
@@ -154,7 +181,7 @@ export default function Hero() {
                 className="group absolute inset-0 flex flex-col items-center justify-center bg-black/20 transition-colors hover:bg-black/35"
                 aria-label={t.hero.videoPlaceholder}
               >
-                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/30 bg-white/15 shadow-lg shadow-black/30 backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-white/25">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/30 bg-white/15 shadow-lg shadow-black/30 mobile-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-white/25">
                   <Play className="ml-1 h-8 w-8 text-white" />
                 </div>
                 <span className="mt-4 font-body text-sm text-white/90 transition-colors group-hover:text-white">
@@ -173,45 +200,43 @@ export default function Hero() {
           transition={{ delay: 1.2 }}
           className="flex flex-col items-center gap-1 text-muted-foreground/50 hover:text-primary transition-colors mt-2"
         >
-          <ChevronDown className="w-5 h-5 animate-bounce" />
+          <ChevronDown className="w-5 h-5 max-md:animate-none animate-bounce" />
         </motion.a>
       </div>
 
       {/* Video modal */}
-      <AnimatePresence>
-        {videoOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-6"
-            onClick={() => setVideoOpen(false)}
+      <ModalPortal
+        open={videoOpen}
+        onClose={closeVideo}
+        ariaLabel={t.hero.videoPlaceholder}
+        overlayClassName="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 max-md:backdrop-blur-none md:backdrop-blur-sm p-6"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-3xl rounded-2xl overflow-hidden border border-white/20 bg-black shadow-2xl"
+        >
+          <button
+            type="button"
+            onClick={closeVideo}
+            className="absolute top-3 right-3 z-50 p-2 rounded-full bg-black/50 hover:bg-black/80 transition-colors"
+            aria-label="Yopish"
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-3xl rounded-2xl overflow-hidden border border-white/20 bg-black shadow-2xl"
-            >
-              <button
-                onClick={() => setVideoOpen(false)}
-                className="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/50 hover:bg-black/80 transition-colors"
-              >
-                <X className="w-5 h-5 text-white" />
-              </button>
-              <video
-                key="hero-modal-video"
-                src={HERO_VIDEO_URL}
-                className="block w-full max-h-[80vh] bg-black object-contain"
-                controls
-                autoPlay
-                playsInline
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <X className="w-5 h-5 text-white" />
+          </button>
+          <video
+            key="hero-modal-video"
+            src={getFullVideoUrl(HERO_VIDEO_URL)}
+            className="block w-full max-h-[80vh] bg-black object-contain"
+            controls
+            autoPlay
+            playsInline
+            preload="metadata"
+          />
+        </motion.div>
+      </ModalPortal>
     </section>
   );
 }

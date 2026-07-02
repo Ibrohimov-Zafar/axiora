@@ -176,3 +176,22 @@ html {
   }
 }
 
+@layer utilities {
+  .mobile-blur-sm {
+    @apply max-md:backdrop-blur-none md:backdrop-blur-sm;
+  }
+
+  .mobile-blur-md {
+    @apply max-md:backdrop-blur-none md:backdrop-blur-md;
+  }
+
+  .mobile-blur-xl {
+    @apply max-md:backdrop-blur-none md:backdrop-blur-xl;
+  }
+
+  .perf-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
+  }
+}
+

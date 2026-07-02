@@ -2,6 +2,7 @@ import React from 'react';
 import { useI18n } from '@/lib/i18n';
 import { motion } from 'framer-motion';
 import { Navigation, MapPin } from 'lucide-react';
+import LazyMapEmbed from '@/components/ui/lazy-map-embed';
 
 const MAPS_EMBED_URL =
   'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1252.0471508044245!2d69.24513586314492!3d41.31293851881912!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38ae8b001cfd79fb%3A0xceadf5e5248f97ce!2sSQB%20Tower%20-%20Sanoat%20Qurilish%20Bank!5e0!3m2!1sen!2s!4v1782843891195!5m2!1sen!2s';
@@ -34,20 +35,13 @@ export default function Location() {
           transition={{ delay: 0.15 }}
         >
           <div className="relative overflow-hidden rounded-2xl border border-black/10 dark:border-border/30 shadow-2xl shadow-primary/10 dark:shadow-primary/5">
-            <iframe
+            <LazyMapEmbed
               src={MAPS_EMBED_URL}
-              width="100%"
-              height="450"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="strict-origin-when-cross-origin"
               title="Axiora location — SQB Tower"
-              className="block w-full"
             />
 
             <div className="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-[300px] z-10">
-              <div className="flex items-start gap-3 rounded-2xl border border-white/70 bg-white/90 p-4 shadow-xl shadow-black/10 backdrop-blur-xl dark:border-white/10 dark:bg-background/85">
+              <div className="flex items-start gap-3 rounded-2xl border border-white/70 bg-white/90 p-4 shadow-xl shadow-black/10 mobile-blur-xl dark:border-white/10 dark:bg-background/85">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Navigation className="h-5 w-5" />
                 </div>

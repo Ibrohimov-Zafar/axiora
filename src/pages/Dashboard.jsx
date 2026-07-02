@@ -20,6 +20,78 @@ const NAV = [
   { to: '/dashboard/settings', label: 'Sozlamalar', icon: Settings },
 ];
 
+function SidebarContent({ collapsed, unreadCount, isActive, onNavigate, onLogout }) {
+  return (
+    <div className="flex flex-col h-full min-h-0">
+      <div
+        className={`flex items-center h-16 border-b border-border/40 shrink-0 overflow-hidden transition-all duration-300 ${
+          collapsed ? 'justify-center px-2' : 'gap-2.5 px-4'
+        }`}
+      >
+        <Link
+          to="/dashboard"
+          onClick={onNavigate}
+          className={`flex items-center min-w-0 ${collapsed ? 'justify-center' : 'gap-2.5'}`}
+          title="Axiora"
+        >
+          <img
+            src="/image.png"
+            alt="Axiora"
+            className={`object-contain shrink-0 ${collapsed ? 'h-8 w-8' : 'h-8 w-auto max-w-[2.25rem]'}`}
+          />
+          {!collapsed && (
+            <span className="font-heading font-bold text-lg tracking-tight text-primary truncate">
+              Axiora
+            </span>
+          )}
+        </Link>
+      </div>
+
+      <nav className="flex-1 min-h-0 px-3 py-4 space-y-1 overflow-y-auto overscroll-contain">
+        {NAV.map((item) => {
+          const active = isActive(item);
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              onClick={onNavigate}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body transition-all duration-200 relative group ${
+                active
+                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                  : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
+              } ${collapsed ? 'justify-center' : ''}`}
+            >
+              <item.icon className="w-4.5 h-4.5 shrink-0" style={{ width: 18, height: 18 }} />
+              {!collapsed && <span className="flex-1">{item.label}</span>}
+              {!collapsed && item.badgeKey === 'messages' && unreadCount > 0 && (
+                <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'}`}>
+                  {unreadCount}
+                </span>
+              )}
+              {collapsed && (
+                <div className="absolute left-full ml-2 px-2 py-1 rounded-lg bg-popover border border-border/60 text-xs font-body text-foreground shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+                  {item.label}
+                </div>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="px-3 pb-4 shrink-0 border-t border-border/40 pt-3">
+        <button
+          type="button"
+          onClick={onLogout}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all w-full ${collapsed ? 'justify-center' : ''}`}
+        >
+          <LogOut style={{ width: 18, height: 18 }} className="shrink-0" />
+          {!collapsed && <span>Chiqish</span>}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -61,77 +133,7 @@ export default function Dashboard() {
 
   const currentPage = NAV.find((n) => isActive(n))?.label ?? 'Dashboard';
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full min-h-0">
-      {/* Logo */}
-      <div
-        className={`flex items-center h-16 border-b border-border/40 shrink-0 overflow-hidden transition-all duration-300 ${
-          collapsed ? 'justify-center px-2' : 'gap-2.5 px-4'
-        }`}
-      >
-        <Link
-          to="/dashboard"
-          onClick={() => setMobileOpen(false)}
-          className={`flex items-center min-w-0 ${collapsed ? 'justify-center' : 'gap-2.5'}`}
-          title="Axiora"
-        >
-          <img
-            src="/image.png"
-            alt="Axiora"
-            className={`object-contain shrink-0 ${collapsed ? 'h-8 w-8' : 'h-8 w-auto max-w-[2.25rem]'}`}
-          />
-          {!collapsed && (
-            <span className="font-heading font-bold text-lg tracking-tight text-primary truncate">
-              Axiora
-            </span>
-          )}
-        </Link>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 min-h-0 px-3 py-4 space-y-1 overflow-y-auto overscroll-contain">
-        {NAV.map((item) => {
-          const active = isActive(item);
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body transition-all duration-200 relative group ${
-                active
-                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
-                  : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
-              } ${collapsed ? 'justify-center' : ''}`}
-            >
-              <item.icon className="w-4.5 h-4.5 shrink-0" style={{ width: 18, height: 18 }} />
-              {!collapsed && <span className="flex-1">{item.label}</span>}
-              {!collapsed && item.badgeKey === 'messages' && unreadCount > 0 && (
-                <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'}`}>
-                  {unreadCount}
-                </span>
-              )}
-              {collapsed && (
-                <div className="absolute left-full ml-2 px-2 py-1 rounded-lg bg-popover border border-border/60 text-xs font-body text-foreground shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
-                  {item.label}
-                </div>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Logout */}
-      <div className="px-3 pb-4 shrink-0 border-t border-border/40 pt-3">
-        <button
-          onClick={logout}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-body text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all w-full ${collapsed ? 'justify-center' : ''}`}
-        >
-          <LogOut style={{ width: 18, height: 18 }} className="shrink-0" />
-          {!collapsed && <span>Chiqish</span>}
-        </button>
-      </div>
-    </div>
-  );
+  const closeMobileNav = () => setMobileOpen(false);
 
   return (
     <div className="flex h-dvh max-h-dvh overflow-hidden bg-background">
@@ -141,7 +143,13 @@ export default function Dashboard() {
           collapsed ? 'w-16' : 'w-60'
         }`}
       >
-        <SidebarContent />
+        <SidebarContent
+          collapsed={collapsed}
+          unreadCount={unreadCount}
+          isActive={isActive}
+          onNavigate={closeMobileNav}
+          onLogout={logout}
+        />
       </aside>
 
       {/* Mobile sidebar overlay */}
@@ -162,7 +170,13 @@ export default function Dashboard() {
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="lg:hidden fixed left-0 top-0 bottom-0 z-50 w-60 bg-card border-r border-border/40 flex flex-col"
             >
-              <SidebarContent />
+              <SidebarContent
+                collapsed={false}
+                unreadCount={unreadCount}
+                isActive={isActive}
+                onNavigate={closeMobileNav}
+                onLogout={logout}
+              />
             </motion.aside>
           </>
         )}

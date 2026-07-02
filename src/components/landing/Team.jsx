@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useI18n } from '@/lib/i18n';
 import { MEMBER_PHOTOS, MEMBER_VIDEOS, getFullVideoUrl, getOptimizedImageUrl } from '@/lib/teamMedia';
-import { motion, AnimatePresence } from 'framer-motion';
+import { ModalPortal } from '@/components/ui/modal-portal';
+import { motion } from 'framer-motion';
 import { X, Play, Linkedin, Twitter } from 'lucide-react';
 
 export default function Team() {
@@ -14,10 +15,10 @@ export default function Team() {
     setVideoPlaying(playVideo);
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setSelected(null);
     setVideoPlaying(false);
-  };
+  }, []);
 
   return (
     <section id="team" className="relative py-16 md:py-28">
@@ -44,7 +45,7 @@ export default function Team() {
               onClick={() => openModal(member, i)}
               className="group relative cursor-pointer"
             >
-              <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-sm backdrop-blur-md transition-all duration-500 hover:border-primary/40 hover:bg-white/15 dark:border-border/30 dark:bg-white/5 dark:hover:bg-white/8">
+              <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-sm mobile-blur-md transition-all duration-500 hover:border-primary/40 hover:bg-white/15 dark:border-border/30 dark:bg-white/5 dark:hover:bg-white/8">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
                 <div className="relative aspect-[3/4] overflow-hidden">
@@ -58,7 +59,7 @@ export default function Team() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
                   <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/80 shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 sm:h-12 sm:w-12">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/80 shadow-lg max-md:backdrop-blur-none md:backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 sm:h-12 sm:w-12">
                       <Play className="ml-0.5 h-4 w-4 text-white sm:h-5 sm:w-5" />
                     </div>
                   </div>
@@ -81,91 +82,95 @@ export default function Team() {
         </div>
       </div>
 
-      <AnimatePresence>
+      <ModalPortal
+        open={Boolean(selected)}
+        onClose={closeModal}
+        ariaLabel={selected?.name}
+        overlayClassName="fixed inset-0 z-[200] flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4 max-md:backdrop-blur-none md:backdrop-blur-sm"
+      >
         {selected && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4 md:backdrop-blur-sm"
-            onClick={closeModal}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            onClick={(e) => e.stopPropagation()}
+            className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/20 bg-white/95 shadow-2xl shadow-primary/10 dark:border-border/50 dark:bg-card/95 sm:max-w-lg sm:rounded-3xl md:backdrop-blur-2xl"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/20 bg-white/95 shadow-2xl shadow-primary/10 dark:border-border/50 dark:bg-card/95 sm:max-w-lg sm:rounded-3xl md:backdrop-blur-2xl"
+            <div className="flex shrink-0 justify-center pb-1 pt-3 sm:hidden">
+              <div className="h-1 w-10 rounded-full bg-black/20 dark:bg-white/20" />
+            </div>
+
+            <button
+              type="button"
+              onClick={closeModal}
+              className="absolute right-4 top-4 z-50 rounded-full bg-black/10 p-2 transition-colors hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20"
+              aria-label="Yopish"
             >
-              <div className="flex shrink-0 justify-center pb-1 pt-3 sm:hidden">
-                <div className="h-1 w-10 rounded-full bg-black/20 dark:bg-white/20" />
-              </div>
+              <X className="h-4 w-4 text-foreground" />
+            </button>
 
-              <button
-                onClick={closeModal}
-                className="absolute right-4 top-4 z-20 rounded-full bg-black/10 p-2 transition-colors hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20"
-              >
-                <X className="h-4 w-4 text-foreground" />
-              </button>
-
-              <div className="relative h-52 shrink-0 overflow-hidden bg-secondary sm:h-64">
-                {videoPlaying ? (
-                  <video
-                    key={`modal-${selected.idx}`}
-                    src={getFullVideoUrl(MEMBER_VIDEOS[selected.idx])}
-                    className="h-full w-full bg-black object-contain"
-                    controls
-                    autoPlay
-                    playsInline
+            <div className="relative h-52 shrink-0 overflow-hidden bg-secondary sm:h-64">
+              {videoPlaying ? (
+                <video
+                  key={`modal-${selected.idx}`}
+                  src={getFullVideoUrl(MEMBER_VIDEOS[selected.idx])}
+                  className="h-full w-full bg-black object-contain"
+                  controls
+                  autoPlay
+                  playsInline
+                  preload="metadata"
+                />
+              ) : (
+                <>
+                  <img
+                    src={getOptimizedImageUrl(MEMBER_PHOTOS[selected.idx], 640)}
+                    alt={selected.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover object-top"
                   />
-                ) : (
-                  <>
-                    <img
-                      src={MEMBER_PHOTOS[selected.idx]}
-                      alt={selected.name}
-                      className="h-full w-full object-cover object-top"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    <button
-                      onClick={() => setVideoPlaying(true)}
-                      className="group/play absolute inset-0 flex items-center justify-center"
-                    >
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/80 shadow-xl backdrop-blur-sm transition-all duration-300 group-hover/play:scale-110 group-hover/play:bg-primary sm:h-16 sm:w-16">
-                        <Play className="ml-1 h-6 w-6 text-white sm:h-7 sm:w-7" />
-                      </div>
-                    </button>
-                  </>
-                )}
-              </div>
-
-              <div className="space-y-3 overflow-y-auto p-4 sm:p-6">
-                <div>
-                  <span className="font-mono text-xs font-bold tracking-wider text-primary">{selected.role}</span>
-                  <h3 className="mt-1 font-heading text-lg font-bold text-foreground sm:text-xl">{selected.name}</h3>
-                </div>
-                <p className="font-body text-sm leading-relaxed text-muted-foreground">{selected.desc}</p>
-
-                <div className="flex items-center gap-2 pt-1">
-                  <button className="rounded-xl bg-primary/10 p-2.5 transition-colors hover:bg-primary/20">
-                    <Linkedin className="h-4 w-4 text-primary" />
-                  </button>
-                  <button className="rounded-xl bg-primary/10 p-2.5 transition-colors hover:bg-primary/20">
-                    <Twitter className="h-4 w-4 text-primary" />
-                  </button>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                   <button
+                    type="button"
                     onClick={() => setVideoPlaying(true)}
-                    className="ml-auto flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-body text-sm text-primary-foreground transition-colors hover:bg-primary/90"
+                    className="group/play absolute inset-0 flex items-center justify-center"
                   >
-                    <Play className="h-3 w-3" />
-                    Video ko&apos;rish
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/80 shadow-xl max-md:backdrop-blur-none md:backdrop-blur-sm transition-all duration-300 group-hover/play:scale-110 group-hover/play:bg-primary sm:h-16 sm:w-16">
+                      <Play className="ml-1 h-6 w-6 text-white sm:h-7 sm:w-7" />
+                    </div>
                   </button>
-                </div>
+                </>
+              )}
+            </div>
+
+            <div className="space-y-3 overflow-y-auto p-4 sm:p-6">
+              <div>
+                <span className="font-mono text-xs font-bold tracking-wider text-primary">{selected.role}</span>
+                <h3 className="mt-1 font-heading text-lg font-bold text-foreground sm:text-xl">{selected.name}</h3>
               </div>
-            </motion.div>
+              <p className="font-body text-sm leading-relaxed text-muted-foreground">{selected.desc}</p>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button type="button" className="rounded-xl bg-primary/10 p-2.5 transition-colors hover:bg-primary/20">
+                  <Linkedin className="h-4 w-4 text-primary" />
+                </button>
+                <button type="button" className="rounded-xl bg-primary/10 p-2.5 transition-colors hover:bg-primary/20">
+                  <Twitter className="h-4 w-4 text-primary" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVideoPlaying(true)}
+                  className="ml-auto flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-body text-sm text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  <Play className="h-3 w-3" />
+                  Video ko&apos;rish
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </ModalPortal>
     </section>
   );
 }

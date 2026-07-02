@@ -42,7 +42,7 @@ function LazySection({ children }) {
   }, []);
 
   return (
-    <div ref={ref}>
+    <div ref={ref} className="perf-section">
       {visible ? (
         <Suspense fallback={<SectionFallback />}>{children}</Suspense>
       ) : (

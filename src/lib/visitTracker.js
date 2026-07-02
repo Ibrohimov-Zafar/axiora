@@ -87,11 +87,25 @@ let geoFetchStarted = false;
 function startGeoFetch() {
   if (geoFetchStarted || cachedGeo) return;
   geoFetchStarted = true;
-  fetchGeo()
-    .then((geo) => { cachedGeo = geo; })
-    .catch(() => {
-      cachedGeo = { country: "Noma'lum", city: "Noma'lum" };
-    });
+
+  const run = () => {
+    fetchGeo()
+      .then((geo) => { cachedGeo = geo; })
+      .catch(() => {
+        cachedGeo = { country: "Noma'lum", city: "Noma'lum" };
+      });
+  };
+
+  const isMobile = typeof window !== 'undefined' &&
+    window.matchMedia('(max-width: 768px)').matches;
+
+  if (isMobile && typeof requestIdleCallback === 'function') {
+    requestIdleCallback(run, { timeout: 5000 });
+  } else if (isMobile) {
+    setTimeout(run, 3000);
+  } else {
+    run();
+  }
 }
 
 export async function recordVisit({ path, hash = '' }) {

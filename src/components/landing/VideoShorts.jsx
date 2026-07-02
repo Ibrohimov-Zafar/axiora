@@ -7,7 +7,8 @@ import {
   getYoutubeEmbedId,
 } from '@/lib/teamMedia';
 import { api } from '@/api/client';
-import { motion, AnimatePresence } from 'framer-motion';
+import { ModalPortal } from '@/components/ui/modal-portal';
+import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
 const AUTO_SCROLL_SPEED = 1.1;
@@ -19,7 +20,15 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
   const videoRef = useRef(null);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const [prevSrc, setPrevSrc] = useState(src);
   const posterSrc = poster ? getPosterImageUrl(poster) : null;
+
+  if (src !== prevSrc) {
+    setPrevSrc(src);
+    setVideoError(false);
+    setIsReady(false);
+  }
 
   useEffect(() => {
     const container = containerRef.current;
@@ -86,7 +95,7 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
         ) : (
           <div className={`absolute inset-0 bg-gradient-to-b from-primary/20 via-secondary/40 to-background transition-opacity duration-300 ${isReady ? 'opacity-0' : 'opacity-100'}`} />
         )}
-        {shouldLoad && (
+        {shouldLoad && !videoError && (
           <video
             ref={videoRef}
             src={src}
@@ -95,6 +104,7 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
             loop
             playsInline
             preload="metadata"
+            onError={() => setVideoError(true)}
           />
         )}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3">
@@ -110,10 +120,66 @@ function ShortsVideoCard({ src, poster, member, onClick }) {
   );
 }
 
+function ShortsModal({ active, onClose }) {
+  return (
+    <ModalPortal
+      open={Boolean(active)}
+      onClose={onClose}
+      ariaLabel={active?.member?.name}
+    >
+      {active && (
+        <motion.div
+          initial={{ scale: 0.92, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.92, opacity: 0 }}
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl"
+        >
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-3 top-3 z-50 rounded-full bg-black/70 p-2.5 transition-colors hover:bg-black/90"
+            aria-label="Yopish"
+          >
+            <X className="h-5 w-5 text-white" />
+          </button>
+          {active.youtubeId ? (
+            <iframe
+              title={active.member.name}
+              src={`https://www.youtube.com/embed/${active.youtubeId}?autoplay=1&playsinline=1`}
+              className="aspect-[9/16] w-full bg-black"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <video
+              key={`shorts-modal-${active.id}`}
+              src={active.fullSrc}
+              poster={active.poster ? getPosterImageUrl(active.poster) : undefined}
+              className="aspect-[9/16] w-full bg-black object-contain"
+              controls
+              autoPlay
+              playsInline
+              preload="metadata"
+            />
+          )}
+          <div className="border-t border-white/10 p-4">
+            <span className="font-mono text-xs font-bold text-primary">{active.member.role}</span>
+            <p className="mt-1 font-heading text-base font-semibold text-white">{active.member.name}</p>
+          </div>
+        </motion.div>
+      )}
+    </ModalPortal>
+  );
+}
+
 export default function VideoShorts() {
   const [active, setActive] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
   const sectionRef = useRef(null);
   const [sectionVisible, setSectionVisible] = useState(false);
+
+  const closeModal = useCallback(() => setActive(null), []);
 
   const { data: shorts = [], isLoading, isError } = useQuery({
     queryKey: ['shorts'],
@@ -137,7 +203,17 @@ export default function VideoShorts() {
     youtubeId: getYoutubeEmbedId(s.youtube_url),
   }));
 
-  const marqueeItems = items.length > 0 ? [...items, ...items] : [];
+  const marqueeItems = items.length > 0
+    ? (isMobile ? items : [...items, ...items])
+    : [];
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   const normalizeScroll = useCallback((el) => {
     const half = el.scrollWidth / 2;
@@ -160,10 +236,7 @@ export default function VideoShorts() {
 
   useEffect(() => {
     const track = trackRef.current;
-    if (!track || items.length === 0 || !sectionVisible) return;
-
-    const isMobile = window.matchMedia(MOBILE_QUERY).matches;
-    if (isMobile) return;
+    if (!track || items.length === 0 || !sectionVisible || isMobile) return;
 
     let rafId;
     const tick = () => {
@@ -176,7 +249,7 @@ export default function VideoShorts() {
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [normalizeScroll, items.length, sectionVisible]);
+  }, [normalizeScroll, items.length, sectionVisible, isMobile]);
 
   const handlePointerDown = (e) => {
     if (e.target.closest('[data-shorts-card]')) return;
@@ -264,57 +337,7 @@ export default function VideoShorts() {
         </div>
       </motion.div>
 
-      <AnimatePresence>
-        {active && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
-            onClick={() => setActive(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.92, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl"
-            >
-              <button
-                type="button"
-                onClick={() => setActive(null)}
-                className="absolute right-3 top-3 z-10 rounded-full bg-black/60 p-2 transition-colors hover:bg-black/80"
-              >
-                <X className="h-5 w-5 text-white" />
-              </button>
-              {active.youtubeId ? (
-                <iframe
-                  title={active.member.name}
-                  src={`https://www.youtube.com/embed/${active.youtubeId}?autoplay=1&playsinline=1`}
-                  className="aspect-[9/16] w-full bg-black"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <video
-                  key={`shorts-modal-${active.id}`}
-                  src={active.fullSrc}
-                  poster={active.poster ? getPosterImageUrl(active.poster) : undefined}
-                  className="aspect-[9/16] w-full bg-black object-contain"
-                  controls
-                  autoPlay
-                  playsInline
-                  preload="metadata"
-                />
-              )}
-              <div className="border-t border-white/10 p-4">
-                <span className="font-mono text-xs font-bold text-primary">{active.member.role}</span>
-                <p className="mt-1 font-heading text-base font-semibold text-white">{active.member.name}</p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ShortsModal active={active} onClose={closeModal} />
     </section>
   );
 }

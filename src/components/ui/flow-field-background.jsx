@@ -23,9 +23,17 @@ export default function FlowFieldBackground({
   trailOpacity = 0.12,
   particleCount = 600,
   speed = 1,
+  active = true,
 }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
+  const activeRef = useRef(active);
+  const startAnimationRef = useRef(() => {});
+
+  useEffect(() => {
+    activeRef.current = active;
+    if (active) startAnimationRef.current();
+  }, [active]);
 
   useEffect(() => {
     if (prefersReducedMotion()) return;
@@ -126,10 +134,7 @@ export default function FlowFieldBackground({
     };
 
     const animate = () => {
-      if (!isVisible) {
-        animationFrameId = requestAnimationFrame(animate);
-        return;
-      }
+      if (!activeRef.current || !isVisible) return;
       if (width < 2 || height < 2) {
         animationFrameId = requestAnimationFrame(animate);
         return;
@@ -139,6 +144,18 @@ export default function FlowFieldBackground({
       particles.forEach((p) => { p.update(); p.draw(ctx); });
       animationFrameId = requestAnimationFrame(animate);
     };
+
+    const stopAnimation = () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = undefined;
+    };
+
+    const startAnimation = () => {
+      stopAnimation();
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    startAnimationRef.current = startAnimation;
 
     const handleResize = () => {
       init();
@@ -157,25 +174,31 @@ export default function FlowFieldBackground({
 
     const handleVisibility = () => {
       isVisible = document.visibilityState !== "hidden";
+      if (isVisible && activeRef.current) startAnimation();
+      else stopAnimation();
     };
 
     init();
-    animate();
+    startAnimation();
 
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(container);
     window.addEventListener("resize", handleResize);
     document.addEventListener("visibilitychange", handleVisibility);
-    container.addEventListener("mousemove", handleMouseMove);
-    container.addEventListener("mouseleave", handleMouseLeave);
+    if (!isMobile) {
+      container.addEventListener("mousemove", handleMouseMove);
+      container.addEventListener("mouseleave", handleMouseLeave);
+    }
 
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibility);
-      container.removeEventListener("mousemove", handleMouseMove);
-      container.removeEventListener("mouseleave", handleMouseLeave);
-      cancelAnimationFrame(animationFrameId);
+      if (!isMobile) {
+        container.removeEventListener("mousemove", handleMouseMove);
+        container.removeEventListener("mouseleave", handleMouseLeave);
+      }
+      stopAnimation();
     };
   }, [color, trailColor, trailOpacity, particleCount, speed]);
 

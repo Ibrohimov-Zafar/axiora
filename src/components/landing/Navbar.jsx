@@ -27,9 +27,17 @@ export default function Navbar() {
   }, [dark]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 60);
+        ticking = false;
+      });
+    };
     onScroll();
-    window.addEventListener('scroll', onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
@@ -56,6 +64,9 @@ export default function Navbar() {
             <motion.img
               src="/image.png"
               alt="Axiora"
+              width={42}
+              height={42}
+              decoding="async"
               animate={{ height: scrolled ? 34 : 42 }}
               transition={{ duration: 0.35 }}
               className="w-auto object-contain"
@@ -78,7 +89,7 @@ export default function Navbar() {
           </div>
 
           <div className="hidden lg:flex items-center gap-2.5">
-            <div className="flex items-center rounded-full border border-black/10 bg-black/[0.03] p-1 backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04]">
+            <div className="flex items-center rounded-full border border-black/10 bg-black/[0.03] p-1 max-md:backdrop-blur-none md:backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04]">
               <button
                 onClick={() => setLang('uz')}
                 className={`px-3 py-1 rounded-full font-medium transition-all duration-300 min-w-[36px] ${
@@ -109,7 +120,7 @@ export default function Navbar() {
 
             <button
               onClick={toggleTheme}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-black/[0.03] text-foreground backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-primary/10 dark:border-white/10 dark:bg-white/[0.04]"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-black/[0.03] text-foreground max-md:backdrop-blur-none md:backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-primary/10 dark:border-white/10 dark:bg-white/[0.04]"
               aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
               title={dark ? 'Light mode' : 'Dark mode'}
             >
@@ -128,7 +139,7 @@ export default function Navbar() {
 
             <Link
               to="/login"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-black/[0.03] text-foreground backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-primary/10 dark:border-white/10 dark:bg-white/[0.04]"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-black/[0.03] text-foreground max-md:backdrop-blur-none md:backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-primary/10 dark:border-white/10 dark:bg-white/[0.04]"
               title="Admin panel"
             >
               <LogIn className="h-3.5 w-3.5" />
