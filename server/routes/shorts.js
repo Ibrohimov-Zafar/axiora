@@ -19,7 +19,7 @@ function formatShort(row) {
   };
 }
 
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
   try {
     let showAll = false;
     const header = req.headers.authorization;
@@ -40,8 +40,7 @@ router.get('/', (req, res) => {
     const rows = db.prepare(sql).all();
     res.json(rows.map(formatShort));
   } catch (err) {
-    console.error('shorts GET xato:', err);
-    res.json([]);
+    next(err);
   }
 });
 

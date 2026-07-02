@@ -45,7 +45,13 @@ app.use('/api', (req, res) => {
 });
 
 const distPath = path.join(__dirname, '..', 'dist');
-app.use(express.static(distPath));
+app.use(express.static(distPath, {
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('index.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  },
+}));
 
 app.get('*', (req, res, next) => {
   res.sendFile(path.join(distPath, 'index.html'), (err) => {

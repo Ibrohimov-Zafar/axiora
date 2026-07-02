@@ -37,8 +37,15 @@ done
 
 if [ -d /etc/nginx/sites-available ]; then
   echo "==> Host nginx yangilanmoqda..."
-  cp deploy/nginx-host.conf /etc/nginx/sites-available/axiora-team.com
-  ln -sf /etc/nginx/sites-available/axiora-team.com /etc/nginx/sites-enabled/axiora-team.com
+  NGINX_DEST="/etc/nginx/sites-available/axiora-team.com"
+  if [ -f /etc/letsencrypt/live/axiora-team.com/fullchain.pem ]; then
+    cp deploy/nginx-host-ssl.conf "$NGINX_DEST"
+    echo "SSL nginx konfiguratsiyasi o'rnatildi"
+  else
+    cp deploy/nginx-host-http.conf "$NGINX_DEST"
+    echo "HTTP nginx konfiguratsiyasi o'rnatildi"
+  fi
+  ln -sf "$NGINX_DEST" /etc/nginx/sites-enabled/axiora-team.com
   nginx -t
   systemctl reload nginx
 fi

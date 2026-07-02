@@ -111,15 +111,9 @@ export const api = {
   deleteTeamMember: (id) =>
     apiFetch(`/team/${id}`, { method: 'DELETE', auth: true }),
 
-  getShorts: async () => {
-    const data = await apiFetch('/shorts');
-    return Array.isArray(data) ? data : [];
-  },
+  getShorts: () => apiFetch('/shorts'),
 
-  getShortsAdmin: async () => {
-    const data = await apiFetch('/shorts', { auth: true });
-    return Array.isArray(data) ? data : [];
-  },
+  getShortsAdmin: () => apiFetch('/shorts', { auth: true }),
 
   createShort: (body) =>
     apiFetch('/shorts', { method: 'POST', body: JSON.stringify(body), auth: true }),
