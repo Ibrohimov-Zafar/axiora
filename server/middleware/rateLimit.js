@@ -1,8 +1,10 @@
+import { getClientIp } from '../lib/clientIp.js';
+
 const buckets = new Map();
 
 export function rateLimit({ windowMs = 60_000, max = 5 } = {}) {
   return (req, res, next) => {
-    const key = req.ip || req.socket.remoteAddress || 'unknown';
+    const key = getClientIp(req);
     const now = Date.now();
     let bucket = buckets.get(key);
 

@@ -59,6 +59,22 @@ function parseBrowser(ua) {
 
 async function fetchGeo() {
   try {
+    const res = await fetch('/api/visits/ip', { signal: AbortSignal.timeout(4000) });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.ip && data.ip !== "Noma'lum") {
+        return {
+          ip: data.ip,
+          country: data.country || "Noma'lum",
+          city: data.city || "Noma'lum",
+        };
+      }
+    }
+  } catch {
+    // Server IP endpoint ishlamasa, tashqi API ga o'tiladi
+  }
+
+  try {
     const res = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(4000) });
     if (!res.ok) throw new Error('geo fail');
     const data = await res.json();

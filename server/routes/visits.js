@@ -2,48 +2,26 @@ import { Router } from 'express';
 import db from '../db.js';
 import { requireAuth } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rateLimit.js';
+import { getClientIp, isPrivateIp, resolveVisitIp } from '../lib/clientIp.js';
+import { lookupGeo } from '../lib/geoip.js';
 
 const router = Router();
 
-function normalizeIp(ip) {
-  if (!ip || typeof ip !== 'string') return "Noma'lum";
-  const trimmed = ip.trim();
-  if (trimmed.startsWith('::ffff:')) return trimmed.slice(7);
-  return trimmed;
-}
+router.get('/ip', rateLimit({ max: 60 }), async (req, res) => {
+  const ip = getClientIp(req);
+  let country = "Noma'lum";
+  let city = "Noma'lum";
 
-function isPrivateIp(ip) {
-  const normalized = normalizeIp(ip);
-  if (!normalized || normalized === "Noma'lum") return true;
-  if (normalized === '::1' || normalized === '127.0.0.1') return true;
-  if (normalized.startsWith('10.')) return true;
-  if (normalized.startsWith('192.168.')) return true;
-  if (/^172\.(1[6-9]|2\d|3[01])\./.test(normalized)) return true;
-  if (normalized.startsWith('fc') || normalized.startsWith('fd')) return true;
-  if (normalized.startsWith('fe80:')) return true;
-  return false;
-}
-
-function getClientIp(req) {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (typeof forwarded === 'string') {
-    return normalizeIp(forwarded.split(',')[0]);
-  }
-  return normalizeIp(req.ip || req.socket.remoteAddress || "Noma'lum");
-}
-
-function resolveVisitIp(req, reportedIp) {
-  const serverIp = getClientIp(req);
-  const clientIp = normalizeIp(reportedIp);
-
-  if (isPrivateIp(serverIp) && clientIp && !isPrivateIp(clientIp)) {
-    return clientIp;
+  if (!isPrivateIp(ip)) {
+    const geo = await lookupGeo(ip);
+    country = geo.country;
+    city = geo.city;
   }
 
-  return serverIp;
-}
+  res.json({ ip, country, city });
+});
 
-router.post('/', rateLimit({ max: 30 }), (req, res) => {
+router.post('/', rateLimit({ max: 30 }), async (req, res) => {
   const {
     page, path, hash, referrer, referrer_type,
     device, browser, ua, country, city, ip,
@@ -54,14 +32,22 @@ router.post('/', rateLimit({ max: 30 }), (req, res) => {
   }
 
   const visitIp = resolveVisitIp(req, ip);
+  let visitCountry = country || "Noma'lum";
+  let visitCity = city || "Noma'lum";
+
+  if ((visitCountry === "Noma'lum" || visitCity === "Noma'lum") && !isPrivateIp(visitIp)) {
+    const geo = await lookupGeo(visitIp);
+    if (visitCountry === "Noma'lum") visitCountry = geo.country;
+    if (visitCity === "Noma'lum") visitCity = geo.city;
+  }
 
   const insert = db.prepare(`
     INSERT INTO visits (ip, country, city, page, path, hash, referrer, referrer_type, device, browser, ua)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     visitIp,
-    country || "Noma'lum",
-    city || "Noma'lum",
+    visitCountry,
+    visitCity,
     page,
     path,
     hash || '',
