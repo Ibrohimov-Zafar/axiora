@@ -6,6 +6,21 @@ import { defineConfig } from 'vite';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+function apiProxy() {
+  return {
+    target: 'http://localhost:3001',
+    changeOrigin: true,
+    configure(proxy) {
+      proxy.on('proxyReq', (proxyReq, req) => {
+        const clientIp = req.socket?.remoteAddress;
+        if (clientIp) {
+          proxyReq.setHeader('X-Forwarded-For', clientIp);
+        }
+      });
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const plugins = [react()];
@@ -43,16 +58,16 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
-        '/api/auth': { target: 'http://localhost:3001', changeOrigin: true },
-        '/api/contact': { target: 'http://localhost:3001', changeOrigin: true },
-        '/api/messages': { target: 'http://localhost:3001', changeOrigin: true },
-        '/api/projects': { target: 'http://localhost:3001', changeOrigin: true },
-        '/api/team': { target: 'http://localhost:3001', changeOrigin: true },
-        '/api/visits': { target: 'http://localhost:3001', changeOrigin: true },
-        '/api/stats': { target: 'http://localhost:3001', changeOrigin: true },
-        '/api/shorts': { target: 'http://localhost:3001', changeOrigin: true },
-        '/api/partners': { target: 'http://localhost:3001', changeOrigin: true },
-        '/api/health': { target: 'http://localhost:3001', changeOrigin: true },
+        '/api/auth': apiProxy(),
+        '/api/contact': apiProxy(),
+        '/api/messages': apiProxy(),
+        '/api/projects': apiProxy(),
+        '/api/team': apiProxy(),
+        '/api/visits': apiProxy(),
+        '/api/stats': apiProxy(),
+        '/api/shorts': apiProxy(),
+        '/api/partners': apiProxy(),
+        '/api/health': apiProxy(),
       },
     },
     plugins,

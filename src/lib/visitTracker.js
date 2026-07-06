@@ -80,32 +80,25 @@ async function fetchGeo() {
 }
 
 let cachedGeo = null;
+let geoFetchPromise = null;
 let lastVisitKey = '';
 let lastVisitTime = 0;
-let geoFetchStarted = false;
 
-function startGeoFetch() {
-  if (geoFetchStarted || cachedGeo) return;
-  geoFetchStarted = true;
-
-  const run = () => {
-    fetchGeo()
-      .then((geo) => { cachedGeo = geo; })
+async function getGeo() {
+  if (cachedGeo) return cachedGeo;
+  if (!geoFetchPromise) {
+    geoFetchPromise = fetchGeo()
+      .then((geo) => {
+        cachedGeo = geo;
+        return geo;
+      })
       .catch(() => {
-        cachedGeo = { country: "Noma'lum", city: "Noma'lum" };
+        const fallback = { ip: "Noma'lum", country: "Noma'lum", city: "Noma'lum" };
+        cachedGeo = fallback;
+        return fallback;
       });
-  };
-
-  const isMobile = typeof window !== 'undefined' &&
-    window.matchMedia('(max-width: 768px)').matches;
-
-  if (isMobile && typeof requestIdleCallback === 'function') {
-    requestIdleCallback(run, { timeout: 5000 });
-  } else if (isMobile) {
-    setTimeout(run, 3000);
-  } else {
-    run();
   }
+  return geoFetchPromise;
 }
 
 export async function recordVisit({ path, hash = '' }) {
@@ -123,7 +116,7 @@ export async function recordVisit({ path, hash = '' }) {
   lastVisitKey = dupKey;
   lastVisitTime = Date.now();
 
-  startGeoFetch();
+  const geo = await getGeo();
 
   try {
     await api.recordVisit({
@@ -135,8 +128,9 @@ export async function recordVisit({ path, hash = '' }) {
       device: parseDevice(ua),
       browser: parseBrowser(ua),
       ua,
-      country: cachedGeo?.country,
-      city: cachedGeo?.city,
+      ip: geo.ip,
+      country: geo.country,
+      city: geo.city,
     });
   } catch {
     // Tashrif yozuvi muvaffaqiyatsiz bo'lsa, foydalanuvchiga ko'rsatilmaydi
