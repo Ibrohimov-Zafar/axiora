@@ -69,6 +69,17 @@ export function getApiErrorMessage(err, fallback = 'Xatolik yuz berdi') {
   return fallback;
 }
 
+function toQueryString(params = {}) {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      search.set(key, String(value));
+    }
+  }
+  const qs = search.toString();
+  return qs ? `?${qs}` : '';
+}
+
 export const api = {
   login: (username, password) =>
     apiFetch('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
@@ -78,10 +89,8 @@ export const api = {
   submitContact: (body) =>
     apiFetch('/contact', { method: 'POST', body: JSON.stringify(body) }),
 
-  getMessages: (params = {}) => {
-    const qs = new URLSearchParams(params).toString();
-    return apiFetch(`/messages${qs ? `?${qs}` : ''}`, { auth: true });
-  },
+  getMessages: (params = {}) =>
+    apiFetch(`/messages${toQueryString(params)}`, { auth: true }),
 
   markMessageRead: (id) =>
     apiFetch(`/messages/${id}/read`, { method: 'PATCH', auth: true }),
@@ -142,10 +151,8 @@ export const api = {
   recordVisit: (body) =>
     apiFetch('/visits', { method: 'POST', body: JSON.stringify(body) }),
 
-  getVisits: (params = {}) => {
-    const qs = new URLSearchParams(params).toString();
-    return apiFetch(`/visits${qs ? `?${qs}` : ''}`, { auth: true });
-  },
+  getVisits: (params = {}) =>
+    apiFetch(`/visits${toQueryString(params)}`, { auth: true }),
 
   clearVisits: () => apiFetch('/visits', { method: 'DELETE', auth: true }),
 
